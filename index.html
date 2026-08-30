@@ -43,15 +43,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .pin-error{color:var(--red);font-family:var(--mono);font-size:11px;margin-top:10px;height:16px;}
 
 /* NAV */
-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100;}
+nav{display:flex;flex-direction:column;gap:8px;padding:10px 12px 8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100;}
+.nav-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .nav-left{display:flex;flex-direction:column;gap:1px;}
-.nav-logo{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--accent);display:flex;align-items:center;gap:5px;}
+.nav-logo{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--accent);display:flex;align-items:center;gap:5px;white-space:nowrap;}
 .nav-group{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:0.06em;cursor:pointer;}
 .nav-group:hover{color:var(--accent);}
 .conn-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
 .admin-badge{font-family:var(--mono);font-size:9px;background:var(--accent);color:var(--bg);padding:2px 5px;border-radius:4px;font-weight:700;}
-.nav-tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;}
-.nav-tab{padding:5px 9px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;font-family:var(--font);}
+.nav-tabs{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;width:100%;}
+.nav-tab{flex:1;min-height:44px;padding:6px 4px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all 0.15s;font-family:var(--font);}
 .nav-tab.active{background:var(--accent);color:var(--bg);}
 
 /* SCREENS */
@@ -71,7 +72,7 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:12px 1
 .field-hint{font-size:11px;color:var(--muted);line-height:1.4;margin-top:2px;}
 input[type="number"],input[type="time"],input[type="text"],input[type="date"],select,textarea{
   background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;
-  padding:10px 12px;font-size:14px;font-family:var(--font);color:var(--text);
+  padding:12px;font-size:16px;min-height:46px;font-family:var(--font);color:var(--text);
   width:100%;transition:border-color 0.15s;-webkit-appearance:none;
 }
 textarea{resize:vertical;min-height:72px;line-height:1.5;}
@@ -80,12 +81,12 @@ select option{background:var(--surface2);}
 
 /* MODE TOGGLE */
 .mode-toggle{display:flex;gap:0;background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:6px;}
-.mode-btn{flex:1;padding:10px 6px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;line-height:1.3;}
+.mode-btn{flex:1;min-height:44px;padding:10px 6px;border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;line-height:1.3;}
 .mode-btn.active{background:var(--accent);color:var(--bg);}
 
 /* ROSTER */
 .roster-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
-.roster-chip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;transition:all 0.15s;font-size:13px;font-weight:600;user-select:none;position:relative;}
+.roster-chip{display:flex;align-items:center;gap:6px;min-height:44px;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;cursor:pointer;transition:all 0.15s;font-size:13px;font-weight:600;user-select:none;position:relative;}
 .roster-chip.selected{background:var(--accent);color:var(--bg);border-color:var(--accent);}
 .roster-chip.maybe{background:rgba(200,255,0,0.12);border-color:var(--accent2);color:var(--accent2);}
 .roster-chip .x{font-size:10px;opacity:0.5;margin-left:2px;}
@@ -109,7 +110,7 @@ select option{background:var(--surface2);}
 .btn:disabled{opacity:0.45;cursor:not-allowed;}
 .btn-accent{background:var(--accent);color:var(--bg);}
 .btn-ghost{background:transparent;color:var(--muted);border:1.5px solid var(--border);font-size:13px;padding:9px;}
-.btn-sm{padding:6px 12px;font-size:11px;width:auto;display:inline-block;border-radius:7px;margin-bottom:0;}
+.btn-sm{padding:6px 12px;font-size:11px;width:auto;display:inline-block;border-radius:7px;margin-bottom:0;min-height:44px;}
 
 /* STATS */
 .stats-strip{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
@@ -141,7 +142,7 @@ select option{background:var(--surface2);}
 .match-score-row{display:flex;align-items:center;gap:6px;}
 .match-score-label{font-family:var(--mono);font-size:9px;color:var(--muted);width:32px;}
 .match-score-inputs{display:flex;align-items:center;gap:5px;flex:1;}
-.score-box{width:42px;height:38px;text-align:center;font-family:var(--mono);font-size:17px;font-weight:700;padding:0;border-radius:7px;background:var(--surface);border:1.5px solid var(--border);color:var(--text);-webkit-appearance:none;}
+.score-box{width:52px;height:52px;text-align:center;font-family:var(--mono);font-size:22px;font-weight:700;padding:0;border-radius:7px;background:var(--surface);border:1.5px solid var(--border);color:var(--text);-webkit-appearance:none;}
 .score-box.win-h{border-color:var(--accent);color:var(--accent);background:rgba(200,255,0,0.06);}
 .score-box.lose-h{border-color:var(--red);color:var(--red);}
 .score-sep{font-family:var(--mono);font-size:14px;color:var(--muted);}
@@ -161,6 +162,39 @@ select option{background:var(--surface2);}
   transition:opacity 0.15s;
 }
 .round-save-btn-big:active{opacity:0.8;}
+.round-save-btn-big[disabled]{cursor:default;}
+
+/* Collapsed session chrome. Measured 667px of planning furniture above the first score
+   input on a 375px screen; this folds it to one 44px row. */
+.sess-details-toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  width:100%;min-height:44px;padding:10px 14px;margin-bottom:10px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--border);color:var(--muted);
+  font-family:var(--mono);font-size:12px;cursor:pointer;text-align:left;}
+
+/* Rounds collapse so the one being played is on screen instead of 4800px down. */
+.round-block.is-now{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+.round-head{cursor:pointer;min-height:52px;}
+.round-now-badge{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.1em;
+  background:var(--accent);color:var(--bg);padding:3px 7px;border-radius:5px;}
+.round-collapsed-summary{font-family:var(--mono);font-size:11px;color:var(--muted);
+  padding:0 14px 12px;line-height:1.7;}
+.round-collapsed-summary .sc{color:var(--text);font-weight:700;}
+.round-chevron{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px;}
+.add-set-btn{margin-top:4px;background:transparent;border:1px dashed var(--border);
+  color:var(--muted);border-radius:8px;min-height:44px;width:100%;padding:0 12px;
+  font-family:var(--mono);font-size:11px;cursor:pointer;}
+
+/* Live standings */
+.today-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;
+  min-height:44px;padding:10px 14px;margin-bottom:10px;border-radius:10px;
+  background:var(--surface2);border:1px solid var(--accent2);color:var(--text);
+  font-family:var(--mono);font-size:12px;cursor:pointer;text-align:left;}
+.today-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
+.today-table td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px;}
+.today-table tr:last-child td{border-bottom:none;}
+.today-rank{font-family:var(--mono);color:var(--muted);width:30px;}
+.today-pts{font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right;}
+.today-played{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;width:52px;}
 
 /* LEADERBOARD TABLE */
 .lb-filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
@@ -186,6 +220,13 @@ select option{background:var(--surface2);}
 .lb-move-cell.same{color:var(--muted);}
 .lb-unranked-row td{opacity:0.5;}
 .lb-unranked-badge{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;}
+/* These two had no CSS rule at all, so they rendered as 14x19px light-grey OS buttons with
+   black text on a dark board, wedged against the name that opens the profile card. */
+.lb-remove,.lb-rename{width:34px;height:34px;margin-left:4px;border-radius:8px;
+  background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+  font-size:13px;line-height:1;cursor:pointer;vertical-align:middle;}
+.lb-remove{color:var(--red);border-color:rgba(255,92,92,0.35);}
+.lb-remove:active,.lb-rename:active{background:var(--border);}
 
 /* PLAYER PROFILE CARD */
 #playerCardOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:350;display:none;align-items:flex-end;justify-content:center;padding:0;}
@@ -300,10 +341,9 @@ select option{background:var(--surface2);}
 @media(max-width:480px){
   .field-grid{grid-template-columns:1fr;}
   .field.span2{grid-column:1;}
-  .nav-tab{padding:5px 7px;font-size:10px;}
-  .score-box{width:40px;height:38px;font-size:16px;}
-  .match-player{font-size:13px;}
-  .lb-table th,.lb-table td{padding:8px 8px;}
+  .nav-tab{font-size:12px;}
+  .match-player{font-size:14px;}
+  .lb-table th,.lb-table td{padding:11px 8px;}
 }
 </style>
 </head>
@@ -401,9 +441,11 @@ select option{background:var(--surface2);}
 
 <!-- NAV -->
 <nav>
+  <div class="nav-top">
   <div class="nav-left">
     <div class="nav-logo"><span class="conn-dot" id="connDot"></span>🎾 PADEL HUB<span class="admin-badge" id="adminBadge" style="display:none;">ADMIN</span></div>
     <div class="nav-group" id="navGroupName" onclick="switchGroup()">tap to switch group</div>
+  </div>
   </div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showTab('plan')">Plan</button>
@@ -568,7 +610,7 @@ select option{background:var(--surface2);}
     <strong>How ranking works</strong>
     <div class="formula-row"><span class="formula-key">Ranked by</span><span class="formula-val">Points Per Game avg (PPG)</span></div>
     <div class="formula-row"><span class="formula-key">Tiebreaker</span><span class="formula-val">Win rate (games won ÷ played)</span></div>
-    <div class="formula-row"><span class="formula-key">Window</span><span class="formula-val">Last 10 sessions only</span></div>
+    <div class="formula-row"><span class="formula-key">Window</span><span class="formula-val">All sessions (lifetime)</span></div>
     <div class="formula-row"><span class="formula-key">Min to rank</span><span class="formula-val">2 games played</span></div>
     <div class="formula-row"><span class="formula-key">Tap any row</span><span class="formula-val">See full player profile card</span></div>
   </div>
@@ -623,7 +665,6 @@ const SB_URL="https://mobsafcoqqtdauwgmuos.supabase.co";
 const SB_KEY="sb_publishable_4rPADCUxVWPevzebhcRhCQ_GioDLhZm";
 const ADMIN_PIN="6969";
 const MIN_GAMES=2;
-const MAX_SESSIONS=10;
 const SEED_MIN_GAMES=2;
 
 function sbH(e={}){return{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Prefer':'return=representation',...e};}
@@ -685,8 +726,14 @@ async function selectGroup(id){
   renderLbFilters();
   renderHistGroupFilter();
   const hash=window.location.hash.replace('#','');
-  if(TABS.includes(hash))showTab(hash);
-  else showTab('plan');
+  if(TABS.includes(hash)){showTab(hash);return;}
+  // Mid-session the thing people want is the live session, not the planning form.
+  try{
+    const rows=await sbGet('active_session',`group_id=eq.${currentGroup?.id}&select=data`);
+    const live=rows.length?rows[0].data:null;
+    if(live&&!live.cancelled&&live.date===new Date().toISOString().slice(0,10)){showTab('session');return;}
+  }catch{}
+  showTab('plan');
 }
 function switchGroup(){currentSession=null;currentGroup=null;document.getElementById('groupScreen').style.display='flex';loadGroups();}
 
@@ -839,8 +886,31 @@ async function promptRenamePlayer(oldName){
   const newName=prompt(`Rename "${oldName}" to:`,oldName);
   if(!newName||newName.trim()===''||newName.trim()===oldName)return;
   const trimmed=newName.trim();
-  try{await sbPatch('players',{name:oldName},{name:trimmed});const r=roster.find(r=>r.name===oldName);if(r)r.name=trimmed;saveRosterLocally();renderRoster();renderLeaderboard();showToast(`Renamed ✓`);}
-  catch{showToast('Rename failed.');}
+  // game_log carries player names inside team1/team2 arrays, and every derived number is
+  // rebuilt from it. Renaming only the players row left game_log holding the old name, so
+  // the next recompute zeroed the renamed row and re-created the old one. Rewrite the log
+  // FIRST: if a later step fails, the next save's recompute still converges on the new
+  // name rather than resurrecting the old one.
+  showToast('Renaming…');
+  try{
+    const games=await sbGet('game_log','select=id,team1,team2&limit=100000');
+    const hit=g=>(g.team1||[]).includes(oldName)||(g.team2||[]).includes(oldName);
+    const swap=t=>(t||[]).map(n=>n===oldName?trimmed:n);
+    for(const g of games.filter(hit))
+      await sbPatch('game_log',{id:g.id},{team1:swap(g.team1),team2:swap(g.team2)});
+
+    const duos=await sbGet('duo_log','select=id,player1,player2&limit=100000');
+    for(const d of duos.filter(d=>d.player1===oldName||d.player2===oldName))
+      await sbPatch('duo_log',{id:d.id},{
+        player1:d.player1===oldName?trimmed:d.player1,
+        player2:d.player2===oldName?trimmed:d.player2});
+
+    await sbPatch('players',{name:oldName},{name:trimmed});
+    await recomputeTotals(currentGroup?.id);
+
+    const r=roster.find(r=>r.name===oldName); if(r)r.name=trimmed;
+    saveRosterLocally();renderRoster();renderLeaderboard();showToast('Renamed ✓');
+  }catch(e){showToast('Rename failed.');console.error(e);}
 }
 
 // ── DUO PAIRS ────────────────────────────────────────────────────────────────
@@ -1134,10 +1204,14 @@ async function buildSession(){
       groupId:currentGroup?.id,groupName:currentGroup?.name,groupEmoji:currentGroup?.emoji,
       sessionMode,targetScore:targetScore||null,location:location||null,notes:notes||null,
       rounds:rounds.map(r=>({...r,scores:r.matches.map(()=>({sets:[{t1:'',t2:''},{t1:'',t2:''},{t1:'',t2:''}],saved:false})),roundSaved:false})),
+      sessionId:Date.now().toString(36)+Math.random().toString(36).slice(2,7),
       playCount,maxPairReuse,maxMatchupReuse,allSaved:false
     };
 
-    await sbUpsert('active_session',[{id:1,data:currentSession,group_id:currentGroup?.id,session_mode:sessionMode}],'id');
+    // One live session PER GROUP. This used to upsert id=1 unconditionally, so building a
+    // Padelleyballers session silently destroyed a live Padel Poesjes one and vice versa.
+    // Conflict target is group_id, backed by active_session_group_id_key.
+    await sbUpsert('active_session',[{data:currentSession,group_id:currentGroup?.id,session_mode:sessionMode}],'group_id');
     showToast('Session built & shared!');
     showTab('session');
   }catch(e){
@@ -1154,15 +1228,18 @@ async function loadSessionsForDate(){
 
   try{
     // Load the active session if it matches this date
-    const rows=await sbGet('active_session','id=eq.1');
+    const rows=await sbGet('active_session',`group_id=eq.${currentGroup?.id}`);
     const active=rows.length>0?rows[0].data:null;
 
-    if(active&&active.date===date){
+    if(active&&!active.cancelled&&active.date===date){
       currentSession=active;
       loadDraftScores();
       container.innerHTML='';
       renderSessionCard(container,active,true);
     } else {
+      // Leaving a stale currentSession pointing at a session no longer on screen let
+      // saveRound, addRound and unlockRoundEdit all still fire against it.
+      currentSession=null;
       // Check history for past sessions on this date
       const games=await sbGet('game_log',`session_date=eq.${date}&order=round.asc`);
       if(games.length===0){
@@ -1192,6 +1269,74 @@ async function loadSessionsForDate(){
   }catch(e){container.innerHTML=`<div class="empty">Could not load session data.</div>`;console.error(e);}
 }
 
+// The games/sets/tiebreak tally was written out three times, byte-identical, in
+// renderSessionCard, updateScoreHighlights and saveRound. A fourth copy for the standings
+// panel would eventually drift from the number actually written to game_log, which is the
+// one disagreement that would destroy trust in the panel. One function, four callers.
+function tallyMatch(sets){
+  let t1games=0,t2games=0,t1sets=0,t2sets=0;
+  (sets||[]).forEach(set=>{
+    const a=set.t1!==''&&set.t1!=null?parseInt(set.t1):null;
+    const b=set.t2!==''&&set.t2!=null?parseInt(set.t2):null;
+    if(a===null||b===null||isNaN(a)||isNaN(b))return;
+    t1games+=a;t2games+=b;
+    if(a===6&&b===6){
+      const tb1=set.tb1!==undefined&&set.tb1!==''?parseInt(set.tb1):null;
+      const tb2=set.tb2!==undefined&&set.tb2!==''?parseInt(set.tb2):null;
+      if(tb1!==null&&tb2!==null){if(tb1>tb2)t1sets++;else if(tb2>tb1)t2sets++;}
+    } else {if(a>b)t1sets++;else if(b>a)t2sets++;}
+  });
+  return{t1games,t2games,t1sets,t2sets};
+}
+
+// Which round is being played right now, from the clock. -1 if the session is not today or
+// has not started. This is the single most useful thing to know mid-session and the app
+// already had every input needed to compute it.
+function currentRoundIndex(session){
+  if(!session||!session.startTime||!session.gameLen)return -1;
+  if(session.date!==new Date().toISOString().slice(0,10))return -1;
+  const[h,m]=session.startTime.split(':').map(Number);
+  const now=new Date();
+  const mins=(now.getHours()*60+now.getMinutes())-(h*60+m);
+  if(mins<0)return -1;
+  const idx=Math.floor(mins/session.gameLen);
+  return idx<session.rounds.length?idx:-1;
+}
+
+// View state kept at module level so it survives the full re-render that loadSessionsForDate
+// does after every save.
+let openRounds=null, revealedSets=new Set(), todayOpen=false, detailsOpen=false, scrolledToNow=null;
+// Pure view toggles must NOT go back to the network. loadSessionsForDate's catch replaces
+// the whole session view with an error, so on a dropped connection tapping "+ Set 2" or
+// expanding a round would wipe the screen someone is mid-way through scoring.
+function rerenderSession(){
+  const c=document.getElementById('sessionDateContent');
+  if(!c||!currentSession){loadSessionsForDate();return;}
+  c.innerHTML='';
+  renderSessionCard(c,currentSession,true);
+}
+function toggleSessionDetails(){detailsOpen=!detailsOpen;rerenderSession();}
+function toggleRoundOpen(ri){
+  if(openRounds===null)openRounds=new Set(defaultOpenRounds(currentSession));
+  if(openRounds.has(ri))openRounds.delete(ri);else openRounds.add(ri);
+  rerenderSession();
+}
+function defaultOpenRounds(session){
+  if(!session)return[];
+  const out=new Set();
+  const cur=currentRoundIndex(session);
+  if(cur>=0)out.add(cur);
+  // Always include the first unsaved round as well as the clock's round. Returning only the
+  // clock's round meant that saving round N before its time slot ended left the session with
+  // no save button until the clock rolled over, which is the normal case with 12 minute
+  // rounds and a session that starts late.
+  const firstUnsaved=session.rounds.findIndex(r=>!r.roundSaved);
+  if(firstUnsaved>=0)out.add(firstUnsaved);
+  return[...out];
+}
+function revealSet(ri,mi){revealedSets.add(`${ri}-${mi}`);rerenderSession();}
+function toggleTodayPanel(){todayOpen=!todayOpen;rerenderSession();}
+
 function renderSessionCard(container,session,isLive){
   const{players,startTime,gameLen,rounds,playCount,maxPairReuse,maxMatchupReuse,allSaved,groupName,groupEmoji,isDuo,is1v1,location,notes,targetScore}=session;
   const numRounds=rounds.length;
@@ -1200,38 +1345,55 @@ function renderSessionCard(container,session,isLive){
 
   const modeLabel=isDuo?'Duo mode':is1v1?'1v1 mode':'Individual';
   const wrapper=document.createElement('div');
+  const curIdx=currentRoundIndex(session);
+  let openSet=openRounds===null?new Set(defaultOpenRounds(session)):new Set(openRounds);
+  // Hard invariant, enforced at render so it holds no matter how the state got here: while
+  // any round is unsaved, at least one unsaved round must be open and therefore scoreable.
+  // Collapsing the last open round used to leave openRounds an empty Set, which also stopped
+  // the clock-based default ever running again: zero save buttons for the rest of the night,
+  // surviving a save and a full reload.
+  if(rounds.some(r=>!r.roundSaved)&&![...openSet].some(i=>rounds[i]&&!rounds[i].roundSaved))
+    defaultOpenRounds(session).forEach(i=>openSet.add(i));
+  const savedCount=rounds.filter(r=>r.roundSaved).length;
+
   wrapper.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;">
       <div>
         <div class="section-eyebrow">${groupEmoji||'🎾'} ${groupName||''} · ${modeLabel}</div>
         <div style="font-size:20px;font-weight:700;line-height:1.1;">${startTime} – ${endTime}</div>
       </div>
-      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="confirmRebuild()" style="margin:0;">↺ Regenerate</button>`:''}
+      ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openSessionAdmin()" style="margin:0;min-height:44px;">⚙ Manage</button>`:''}
     </div>
-    <div class="stats-strip">
-      <div class="stat-chip"><strong>${numRounds}</strong> rounds</div>
-      <div class="stat-chip"><strong>${gameLen}min</strong> each</div>
-      <div class="stat-chip"><strong>${minP}${minP!==maxP?'–'+maxP:''}</strong> games/player</div>
-      <div class="stat-chip"><strong>${players.length}</strong> players</div>
-      ${targetScore?`<div class="stat-chip">First to <strong>${targetScore}</strong> games</div>`:''}
-      ${location?`<div class="stat-chip">📍 ${location}</div>`:''}
-    </div>
-    ${notes?`<div class="info-box" style="margin-bottom:12px;"><strong>Notes</strong><br>${notes}</div>`:''}
-    <div class="info-box" style="cursor:pointer;" onclick="toggleScoringGuide()">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <strong>How to score ↓ tap for guide</strong>
-        <span id="guideArrow" style="font-family:var(--mono);font-size:11px;color:var(--accent);">▼</span>
+    <div id="todayPanel"></div>
+    <button class="sess-details-toggle" onclick="toggleSessionDetails()">
+      <span>${numRounds} rounds · ${gameLen}min each · ${players.length} players · ${savedCount}/${numRounds} saved</span>
+      <span>${detailsOpen?'▲':'▼'}</span>
+    </button>
+    ${detailsOpen?`
+      <div class="stats-strip">
+        <div class="stat-chip"><strong>${minP}${minP!==maxP?'–'+maxP:''}</strong> games/player</div>
+        ${targetScore?`<div class="stat-chip">First to <strong>${targetScore}</strong> games</div>`:''}
+        ${location?`<div class="stat-chip">📍 ${location}</div>`:''}
       </div>
-      <div id="scoringGuide" style="display:none;margin-top:10px;line-height:1.9;">
-        <strong style="display:block;margin-bottom:4px;">Padel: Points → Games → Sets → Match</strong>
-        Points: 0, 15, 30, 40, game · Games: first to 6 wins a set · Sets: first to 2 wins the match<br><br>
-        <strong style="display:block;margin-bottom:4px;">What to enter here</strong>
-        Enter the games score per set. Time runs out mid-set? Enter the score at the buzzer. Leave Set 2/3 blank if not reached. At 6–6 a tiebreak box appears.<br><br>
-        <strong style="display:block;margin-bottom:4px;">Example</strong>
-        Set 1: 6–4 (your team wins) · Set 2: 3–2 at buzzer → you win 2–0 sets · you bank 9 games · they bank 6
+      ${notes?`<div class="info-box" style="margin-bottom:12px;"><strong>Notes</strong><br>${notes}</div>`:''}
+      <div class="info-box" style="cursor:pointer;" onclick="toggleScoringGuide()">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>How to score ↓ tap for guide</strong>
+          <span id="guideArrow" style="font-family:var(--mono);font-size:11px;color:var(--accent);">▼</span>
+        </div>
+        <div id="scoringGuide" style="display:none;margin-top:10px;line-height:1.9;">
+          <strong style="display:block;margin-bottom:4px;">Padel: Points → Games → Sets → Match</strong>
+          Points: 0, 15, 30, 40, game · Games: first to 6 wins a set · Sets: first to 2 wins the match<br><br>
+          <strong style="display:block;margin-bottom:4px;">What to enter here</strong>
+          Enter the games score per set. Time runs out mid-set? Enter the score at the buzzer.
+          Only Set 1 is shown by default; tap <strong>＋ Set 2</strong> if you played more.
+          At 6–6 a tiebreak box appears.<br><br>
+          <strong style="display:block;margin-bottom:4px;">Example</strong>
+          Set 1: 6–4 (your team wins) · Set 2: 3–2 at buzzer → you win 2–0 sets · you bank 9 games · they bank 6
+        </div>
       </div>
-    </div>
-    ${maxPairReuse>1||maxMatchupReuse>1?`<div class="warn-box">⚠ Some pairs/matchups repeat — unavoidable with ${players.length} players over ${numRounds} rounds.</div>`:''}
+      ${maxPairReuse>1||maxMatchupReuse>1?`<div class="warn-box">⚠ Some pairs/matchups repeat — unavoidable with ${players.length} players over ${numRounds} rounds.</div>`:''}
+    `:''}
     <div id="roundsOutput"></div>
     ${allSaved?`<div class="complete-banner"><div class="complete-banner-text"><strong>Session complete 🎉</strong>Leaderboard updated live.</div><div style="display:flex;flex-direction:column;gap:6px;"><button class="btn btn-accent btn-sm" onclick="exportCSV()">Export CSV</button><button class="btn btn-ghost btn-sm" style="margin:0;" onclick="addRound()">＋ Add round</button></div></div>`:''}
   `;
@@ -1240,58 +1402,202 @@ function renderSessionCard(container,session,isLive){
   const roundsContainer=wrapper.querySelector('#roundsOutput');
   rounds.forEach((round,ri)=>{
     const startT=addMinutes(startTime,ri*gameLen),endT=addMinutes(startTime,(ri+1)*gameLen);
+    const isNow=ri===curIdx;
+    const isOpen=openSet.has(ri);
+
+    const savedBadge=round.roundSaved
+      ?`<div class="round-saved-badge">✓ SAVED ${isAdmin?`<button class="round-edit-btn" onclick="event.stopPropagation();requirePin('edit:'+${ri})">Edit</button>`:''}</div>`
+      :'';
+    const head=`
+      <div class="round-head" onclick="toggleRoundOpen(${ri})">
+        <div>
+          <div class="round-tag">Round ${round.round} ${isNow?'<span class="round-now-badge">NOW</span>':''}</div>
+          <div class="round-time">${startT} – ${endT}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">${savedBadge}<span class="round-chevron">${isOpen?'▲':'▼'}</span></div>
+      </div>`;
+
+    const el=document.createElement('div');
+    el.className='round-block'+(isNow?' is-now':'');
+
+    if(!isOpen){
+      // Collapsed: enough to recognise the round without 400px of inputs.
+      const summary=round.matches.map((m,mi)=>{
+        const t=tallyMatch(round.scores[mi].sets);
+        const has=t.t1games>0||t.t2games>0;
+        return `${m.team1.join(' & ')} <span style="opacity:0.6;">v</span> ${m.team2.join(' & ')}`
+             + (has?` <span class="sc">${t.t1games}–${t.t2games}</span>`:'');
+      }).join('<br>');
+      el.innerHTML=head+`<div class="round-collapsed-summary">${summary}</div>`;
+      roundsContainer.appendChild(el);
+      return;
+    }
+
     const matchesHTML=round.matches.map((m,mi)=>{
-      const s=round.scores[mi];
+      const sc=round.scores[mi];
       const dis=round.roundSaved?'disabled':'';
-      let t1sets=0,t2sets=0,t1games=0,t2games=0;
-      s.sets.forEach(set=>{
-        const a=set.t1!==''?parseInt(set.t1):null,b=set.t2!==''?parseInt(set.t2):null;
-        if(a!==null&&b!==null){
-          t1games+=a;t2games+=b;
-          if(a===6&&b===6){const tb1=set.tb1!==undefined&&set.tb1!==''?parseInt(set.tb1):null,tb2=set.tb2!==undefined&&set.tb2!==''?parseInt(set.tb2):null;if(tb1!==null&&tb2!==null){if(tb1>tb2)t1sets++;else if(tb2>tb1)t2sets++;}}
-          else{if(a>b)t1sets++;else if(b>a)t2sets++;}
-        }
-      });
-      const t1win=t1sets>t2sets,t2win=t2sets>t1sets;
+      const t=tallyMatch(sc.sets);
+      const t1win=t.t1sets>t.t2sets,t2win=t.t2sets>t.t1sets;
       const is1v1Match=m.team1.length===1;
-      const setInputs=s.sets.map((set,si)=>{
+
+      // Set 2 and Set 3 are hidden until asked for. Across all 59 recorded matches Set 1
+      // was used 100% of the time and Sets 2 and 3 exactly zero times, so two thirds of the
+      // score boxes on the busiest screen in the app had never been typed into.
+      const revealed=revealedSets.has(`${ri}-${mi}`);
+      const used=si=>sc.sets[si]&&(sc.sets[si].t1!==''||sc.sets[si].t2!=='');
+      const visibleCount=revealed?3:Math.max(1,(used(2)?3:used(1)?2:1));
+
+      const setInputs=sc.sets.slice(0,visibleCount).map((set,si)=>{
         const a=set.t1!==''?parseInt(set.t1):null,b=set.t2!==''?parseInt(set.t2):null;
         const isTb=a===6&&b===6;
-        const tbRow=isTb?`<div class="match-score-row"><span class="match-score-label" style="color:var(--accent);">TB</span><div class="match-score-inputs"><input class="score-box" style="width:40px;height:36px;font-size:15px;" type="number" min="0" max="99" placeholder="—" value="${set.tb1||''}" ${dis} onchange="updateScore(${ri},${mi},${si},'tb1',this.value)"/><div class="score-sep">–</div><input class="score-box" style="width:40px;height:36px;font-size:15px;" type="number" min="0" max="99" placeholder="—" value="${set.tb2||''}" ${dis} onchange="updateScore(${ri},${mi},${si},'tb2',this.value)"/></div></div>`:'';
-        return`<div class="match-score-row"><span class="match-score-label">${['Set 1','Set 2','Set 3'][si]}</span><div class="match-score-inputs"><input class="score-box ${a!==null&&b!==null&&a>b?'win-h':a!==null&&b!==null&&b>a?'lose-h':''}" style="width:40px;height:36px;font-size:15px;" type="number" min="0" max="${is1v1Match?99:7}" placeholder="—" value="${set.t1}" ${dis} onchange="updateScore(${ri},${mi},${si},'t1',this.value)"/><div class="score-sep">–</div><input class="score-box ${a!==null&&b!==null&&b>a?'win-h':a!==null&&b!==null&&a>b?'lose-h':''}" style="width:40px;height:36px;font-size:15px;" type="number" min="0" max="${is1v1Match?99:7}" placeholder="—" value="${set.t2}" ${dis} onchange="updateScore(${ri},${mi},${si},'t2',this.value)"/>${(t1games>0||t2games>0)&&si===0?`<span class="score-games-tally">${t1games}–${t2games}</span>`:''}</div></div>${tbRow}`;
+        const tbRow=isTb?`<div class="match-score-row"><span class="match-score-label" style="color:var(--accent);">TB</span><div class="match-score-inputs"><input class="score-box" type="number" min="0" max="99" placeholder="—" value="${set.tb1||''}" ${dis} onchange="updateScore(${ri},${mi},${si},'tb1',this.value)"/><div class="score-sep">–</div><input class="score-box" type="number" min="0" max="99" placeholder="—" value="${set.tb2||''}" ${dis} onchange="updateScore(${ri},${mi},${si},'tb2',this.value)"/></div></div>`:'';
+        return`<div class="match-score-row"><span class="match-score-label">${['Set 1','Set 2','Set 3'][si]}</span><div class="match-score-inputs"><input class="score-box ${a!==null&&b!==null&&a>b?'win-h':a!==null&&b!==null&&b>a?'lose-h':''}" type="number" inputmode="numeric" min="0" max="${is1v1Match?99:7}" placeholder="—" value="${set.t1}" ${dis} onchange="updateScore(${ri},${mi},${si},'t1',this.value)"/><div class="score-sep">–</div><input class="score-box ${a!==null&&b!==null&&b>a?'win-h':a!==null&&b!==null&&a>b?'lose-h':''}" type="number" inputmode="numeric" min="0" max="${is1v1Match?99:7}" placeholder="—" value="${set.t2}" ${dis} onchange="updateScore(${ri},${mi},${si},'t2',this.value)"/>${(t.t1games>0||t.t2games>0)&&si===0?`<span class="score-games-tally">${t.t1games}–${t.t2games}</span>`:''}</div></div>${tbRow}`;
       }).join('');
+
+      const addSet=(!round.roundSaved&&visibleCount<3)
+        ?`<button class="add-set-btn" onclick="revealSet(${ri},${mi})">＋ Set ${visibleCount+1}</button>`:'';
       const courtLabel=session.courts>1?`Court ${m.court}`:is1v1Match?'1v1':'Match';
       const t1players=m.team1.map(p=>`<div class="match-player ${t1win?'winner-p':''}">${p}</div>`).join('');
       const t2players=m.team2.map(p=>`<div class="match-player ${t2win?'winner-p':''}">${p}</div>`).join('');
-      return`<div class="match-card"><div class="match-card-header">${courtLabel}</div><div class="match-teams"><div class="match-team">${t1players}</div><div class="match-vs-col"><div class="match-vs-badge">VS</div></div><div class="match-team right">${t2players}</div></div><div class="match-scores">${setInputs}</div></div>`;
+      return`<div class="match-card"><div class="match-card-header">${courtLabel}</div><div class="match-teams"><div class="match-team">${t1players}</div><div class="match-vs-col"><div class="match-vs-badge">VS</div></div><div class="match-team right">${t2players}</div></div><div class="match-scores">${setInputs}${addSet}</div></div>`;
     }).join('');
+
     const sittingHTML=round.sitting.length>0?`<div class="sitting-out-bar">Sitting out: <span>${round.sitting.join(', ')}</span></div>`:'';
-    const savedBadge=round.roundSaved
-      ?`<div class="round-saved-badge">✓ SAVED ${isAdmin?`<button class="round-edit-btn" onclick="requirePin('edit:${ri}')">Edit</button>`:''}</div>`
-      :'';
-    const saveBtn=round.roundSaved
-      ?''
-      :`<button class="round-save-btn-big" onclick="saveRound(${ri})">
-          <span style="font-size:18px;">💾</span> Save round ${round.round}
-        </button>`;
-    const el=document.createElement('div');
-    el.className='round-block';
-    el.innerHTML=`
-      <div class="round-head">
-        <div><div class="round-tag">Round ${round.round}</div><div class="round-time">${startT} – ${endT}</div></div>
-        ${savedBadge}
-      </div>
-      <div class="round-body">${matchesHTML}${sittingHTML}</div>
-      ${saveBtn}`;
+    const saveBtn=round.roundSaved?'':`<button class="round-save-btn-big" onclick="saveRound(${ri})"><span style="font-size:18px;">💾</span> Save round ${round.round}</button>`;
+    el.innerHTML=head+`<div class="round-body">${matchesHTML}${sittingHTML}</div>`+saveBtn;
     roundsContainer.appendChild(el);
   });
+
+  renderTodayPanel(session);
+
+  // Jump to the round being played. With rounds collapsed the page is short, but mid-session
+  // the current round still sits below however many finished ones precede it. Once per
+  // session only, so it never fights the user's own scrolling after a save.
+  const sessKey=session.sessionId||session.date;
+  if(curIdx>=0&&scrolledToNow!==sessKey){
+    scrolledToNow=sessKey;
+    const blocks=roundsContainer.querySelectorAll('.round-block');
+    if(blocks[curIdx])setTimeout(()=>blocks[curIdx].scrollIntoView({block:'start',behavior:'smooth'}),120);
+  }
+}
+
+// Live standings for the session in progress.
+// Derived from game_log, NOT from currentSession: any phone that saves a round overwrites
+// active_session with its own copy of the blob, so a panel reading currentSession would
+// silently show stale or missing rounds. game_log is what the leaderboard reads too, so the
+// two cannot disagree. Saved rounds only, which is what "live" means here since a round is
+// the unit people care about.
+async function renderTodayPanel(session){
+  const el=document.getElementById('todayPanel'); if(!el)return;
+  const gid=session.groupId||currentGroup?.id;
+  if(!gid){el.innerHTML='';return;}
+  try{
+    const games=await sbGet('game_log',
+      `session_date=eq.${session.date}&group_id=eq.${gid}&select=team1,team2,score1,score2`);
+    const agg={};
+    const get=n=>(agg[n]=agg[n]||{pts:0,g:0,w:0});
+    (session.players||[]).forEach(p=>get(p));           // everyone shows, including 0/6
+    games.forEach(g=>{
+      const w=g.score1>g.score2?1:g.score2>g.score1?2:0;
+      (g.team1||[]).forEach(n=>{const a=get(n);a.pts+=g.score1||0;a.g++;if(w===1)a.w++;});
+      (g.team2||[]).forEach(n=>{const a=get(n);a.pts+=g.score2||0;a.g++;if(w===2)a.w++;});
+    });
+    // Points first, PPG as the tiebreak. Within one session the rotation assigns near-equal
+    // games (today: 6 or 7 each), so cumulative points is the honest table and PPG only
+    // matters for separating equal scores.
+    const rows=Object.entries(agg).map(([name,a])=>({
+      name,pts:a.pts,g:a.g,w:a.w,ppg:a.g?a.pts/a.g:0,
+      planned:(session.playCount&&session.playCount[name])||0
+    })).sort((x,y)=>y.pts-x.pts||y.ppg-x.ppg||x.name.localeCompare(y.name));
+    const anyPlayed=rows.some(r=>r.g>0);
+    const leader=rows[0];
+    el.innerHTML=`
+      <button class="today-strip" onclick="toggleTodayPanel()">
+        <span>${anyPlayed?`🥇 ${leader.name} · ${leader.pts} pts today`:'Today · no rounds saved yet'}</span>
+        <span>${todayOpen?'▲':'▼ table'}</span>
+      </button>
+      ${todayOpen?`<div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;">
+        <table class="today-table">${rows.map((r,i)=>`
+          <tr>
+            <td class="today-rank">${anyPlayed&&i<3&&r.g>0?['🥇','🥈','🥉'][i]:'#'+(i+1)}</td>
+            <td style="font-weight:700;">${r.name}</td>
+            <td class="today-pts">${r.pts}</td>
+            <td class="today-played">${r.g}/${r.planned||r.g}</td>
+          </tr>`).join('')}</table></div>`:''}`;
+  }catch(e){
+    // Degrade to a visible, honest strip rather than vanishing. A component that disappears
+    // on a dropped request reads as a bug to whoever is holding the phone.
+    el.innerHTML=`<div class="today-strip" style="border-color:var(--border);color:var(--muted);cursor:default;">
+      <span>Standings unavailable offline</span><span>—</span></div>`;
+    console.warn('padel: today panel failed',e);
+  }
+}
+
+// One admin sheet instead of a Regenerate button sitting near the Save buttons.
+function openSessionAdmin(){
+  if(!currentSession)return;
+  const saved=currentSession.rounds.filter(r=>r.roundSaved).length;
+  const total=currentSession.rounds.length;
+  const m=document.createElement('div');
+  m.className='session-admin-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:350;display:flex;align-items:flex-end;justify-content:center;padding:0;';
+  m.innerHTML=`
+    <div style="background:var(--surface);border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:22px 20px 32px;max-width:480px;width:100%;">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);margin-bottom:14px;">⚙ SESSION</div>
+      <button class="btn btn-ghost" style="min-height:52px;" onclick="this.closest('.session-admin-modal').remove();confirmRebuild();">↺ Regenerate rotation</button>
+      <button class="btn btn-ghost" style="min-height:52px;color:var(--red);border-color:var(--red);" onclick="this.closest('.session-admin-modal').remove();confirmCancelSession();">🗑 Cancel this session</button>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin:10px 0 14px;">
+        Saved rounds: ${saved} of ${total}. Saved scores stay on the leaderboard whatever you do here.
+      </div>
+      <button class="btn btn-accent" style="min-height:52px;" onclick="this.closest('.session-admin-modal').remove();">Close</button>
+    </div>`;
+  document.body.appendChild(m);
+}
+
+// Soft cancel, not DELETE. The rotation exists nowhere except this row, and a hard delete
+// is both unrecoverable and ineffective: any phone still holding the session re-inserts it
+// on its next save, because saveRound upserts active_session unconditionally.
+function confirmCancelSession(){
+  if(!currentSession)return;
+  const saved=currentSession.rounds.filter(r=>r.roundSaved).length;
+  const total=currentSession.rounds.length;
+  const m=document.createElement('div');
+  m.className='session-admin-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:360;display:flex;align-items:center;justify-content:center;padding:24px;';
+  m.innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--red);border-radius:16px;padding:24px 20px;max-width:360px;width:100%;">
+      <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;">CANCEL THIS SESSION?</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:18px;">
+        This clears today's plan for <strong style="color:var(--text);">everyone</strong>.<br><br>
+        <strong style="color:var(--accent);">${saved} saved round${saved===1?'':'s'} ${saved===1?'stays':'stay'}</strong> on the leaderboard and in history. Nothing already saved is deleted.<br><br>
+        The rotation for the remaining ${total-saved} round${total-saved===1?'':'s'} ${total-saved===1?'is':'are'} discarded.
+      </div>
+      <button class="btn btn-ghost" style="min-height:52px;" onclick="this.closest('.session-admin-modal').remove();">Keep the session</button>
+      <button class="btn" style="min-height:52px;background:var(--red);color:#fff;" onclick="this.closest('.session-admin-modal').remove();cancelSession();">Yes, cancel it</button>
+    </div>`;
+  document.body.appendChild(m);
+}
+
+async function cancelSession(){
+  if(!currentSession)return;
+  const gid=currentSession.groupId||currentGroup?.id;
+  if(!gid){showToast('No group on this session.');return;}
+  try{
+    const blob={...currentSession,cancelled:true};
+    await sbUpsert('active_session',[{data:blob,group_id:gid}],'group_id');
+    clearDraftScores();
+    currentSession=null;
+    openRounds=null; revealedSets=new Set();
+    loadSessionsForDate();
+    showToast('Session cancelled.');
+  }catch(e){showToast('Could not cancel session.');console.error(e);}
 }
 
 function updateScore(ri,mi,si,team,val){
   if(!currentSession||currentSession.rounds[ri].roundSaved)return;
   currentSession.rounds[ri].scores[mi].sets[si][team]=val;
   // Save draft locally
-  try{localStorage.setItem('padelhub_draft_scores',JSON.stringify(currentSession.rounds.map(r=>r.scores)));}catch{}
+  try{localStorage.setItem(draftKey(),JSON.stringify(currentSession.rounds.map(r=>r.scores)));}catch{}
   // Update score highlights without reloading the whole page
   updateScoreHighlights(ri,mi);
 }
@@ -1300,18 +1606,7 @@ function updateScoreHighlights(ri,mi){
   if(!currentSession)return;
   const round=currentSession.rounds[ri];
   const s=round.scores[mi];
-  let t1sets=0,t2sets=0,t1games=0,t2games=0;
-  s.sets.forEach(set=>{
-    const a=set.t1!==''?parseInt(set.t1):null,b=set.t2!==''?parseInt(set.t2):null;
-    if(a!==null&&b!==null){
-      t1games+=a;t2games+=b;
-      if(a===6&&b===6){
-        const tb1=set.tb1!==undefined&&set.tb1!==''?parseInt(set.tb1):null;
-        const tb2=set.tb2!==undefined&&set.tb2!==''?parseInt(set.tb2):null;
-        if(tb1!==null&&tb2!==null){if(tb1>tb2)t1sets++;else if(tb2>tb1)t2sets++;}
-      } else {if(a>b)t1sets++;else if(b>a)t2sets++;}
-    }
-  });
+  const {t1games,t2games,t1sets,t2sets}=tallyMatch(s.sets);
   const t1win=t1sets>t2sets,t2win=t2sets>t1sets;
 
   // Update score box colours without touching the input values
@@ -1350,19 +1645,138 @@ function updateScoreHighlights(ri,mi){
   });
 }
 function loadDraftScores(){
-  try{const draft=JSON.parse(localStorage.getItem('padelhub_draft_scores'));if(!draft||!currentSession)return;if(draft.length===currentSession.rounds.length)currentSession.rounds.forEach((r,ri)=>{if(!r.roundSaved)r.scores=draft[ri];});}catch{}
+  try{if(!currentSession)return;const draft=JSON.parse(localStorage.getItem(draftKey()));if(!draft)return;if(draft.length===currentSession.rounds.length)currentSession.rounds.forEach((r,ri)=>{if(!r.roundSaved)r.scores=draft[ri];});}catch{}
 }
-function clearDraftScores(){try{localStorage.removeItem('padelhub_draft_scores');}catch{}}
-function unlockRoundEdit(ri){if(!currentSession)return;currentSession.rounds[ri].roundSaved=false;loadSessionsForDate();showToast(`Round ${ri+1} unlocked.`);}
+// Keyed per session. The old global key meant a draft could be applied to a DIFFERENT
+// session that merely happened to have the same number of rounds, pasting one night's
+// scores onto another night's matches by round index.
+// Sessions built before 2026-08-30 have no sessionId. Fall back to the old global key for
+// exactly those, so a session already in progress at deploy time keeps its drafts. New
+// sessions get their own key and can never inherit another session's drafts.
+function draftKey(){return currentSession&&currentSession.sessionId
+  ?'padelhub_draft_'+currentSession.sessionId:'padelhub_draft_scores';}
+function clearDraftScores(){try{localStorage.removeItem(draftKey());localStorage.removeItem('padelhub_draft_scores');}catch{}}
+// Was calling loadSessionsForDate, which immediately re-read the server copy where the round
+// is still saved, discarding the unlock. Long-standing no-op; re-rendering from memory fixes it.
+function unlockRoundEdit(ri){
+  if(!currentSession)return;
+  currentSession.rounds[ri].roundSaved=false;
+  if(openRounds===null)openRounds=new Set(defaultOpenRounds(currentSession));
+  openRounds.add(ri);
+  rerenderSession();
+  showToast(`Round ${ri+1} unlocked.`);
+}
 function toggleScoringGuide(){const g=document.getElementById('scoringGuide'),a=document.getElementById('guideArrow');if(!g)return;const open=g.style.display==='none';g.style.display=open?'block':'none';if(a)a.textContent=open?'▲':'▼';}
 
+// ── DERIVED TOTALS ────────────────────────────────────────────────────────────
+// game_log is the single source of truth. players.points/games/wins/sessions and
+// duo_log are caches rebuilt from it, never incremented, so a re-saved round can
+// never double-count and a bad total repairs itself on the next save.
+async function recomputeTotals(gid){
+  const games=await sbGet('game_log','select=session_date,team1,team2,score1,score2&limit=100000');
+  const agg={};
+  const get=n=>(agg[n]=agg[n]||{points:0,games:0,wins:0,dates:new Set()});
+  games.forEach(g=>{
+    const w=g.score1>g.score2?1:g.score2>g.score1?2:0;
+    (g.team1||[]).forEach(n=>{const a=get(n);a.points+=g.score1||0;a.games++;a.dates.add(g.session_date);if(w===1)a.wins++;});
+    (g.team2||[]).forEach(n=>{const a=get(n);a.points+=g.score2||0;a.games++;a.dates.add(g.session_date);if(w===2)a.wins++;});
+  });
+  const players=await sbGet('players','select=id,name,points,games,wins,sessions');
+  const known=new Set(players.map(p=>p.name));
+  const jobs=[];
+  players.forEach(p=>{
+    const a=agg[p.name]||{points:0,games:0,wins:0,dates:new Set()};
+    const next={points:a.points,games:a.games,wins:a.wins,sessions:a.dates.size};
+    if(p.points!==next.points||p.games!==next.games||p.wins!==next.wins||p.sessions!==next.sessions)
+      jobs.push(sbPatch('players',{id:p.id},{...next,updated_at:new Date().toISOString()}));
+  });
+  // A player can appear in game_log with no players row at all: the only code that
+  // created rows used to live in the increment loop this function replaced. Without
+  // this, such a player has no group, shows 0 sessions, cannot be seeded by
+  // fetchPlayerRankings, and drops off the board entirely once their last session
+  // ages out of the ranking window. Hidde was in exactly this state.
+  const missing=Object.keys(agg).filter(n=>!known.has(n));
+  if(jobs.length)await Promise.all(jobs);
+  // One row at a time, tolerating conflicts. players.name is UNIQUE and a bulk insert is
+  // all-or-nothing, so one collision (two phones saving at once, both seeing the same new
+  // name) would reject the whole batch. saveRound would then land in its catch and toast
+  // "Save failed" for a round whose game_log rows had ALREADY been written, and someone
+  // would re-enter scores over a save that actually succeeded.
+  for(const n of missing){
+    try{
+      await sbPost('players',[{name:n,points:agg[n].points,games:agg[n].games,
+        wins:agg[n].wins,sessions:agg[n].dates.size,group_id:gid||null}]);
+    }catch(e){console.warn('padel: could not create players row for',n,e);}
+  }
+}
+// Rebuild one date's duo rows from that date's matches. renderDuos sums rows per
+// pair, so per-session rows aggregate identically to the old one-row-per-pair shape.
+async function recomputeDuoLog(date,groupId){
+  if(!groupId)return;
+  // Same ordering rule as saveRound: write the replacements first, delete the originals
+  // after. Deleting first and then failing to insert wipes this date's duo standings with
+  // nothing left to rebuild them from, and the user only sees "Save failed".
+  const priorRows=await sbGet('duo_log',`session_date=eq.${date}&group_id=eq.${groupId}&select=id`);
+  const games=await sbGet('game_log',`session_date=eq.${date}&group_id=eq.${groupId}`);
+  const m={};
+  games.forEach(g=>{
+    const w=g.score1>g.score2?1:g.score2>g.score1?2:0;
+    [[g.team1,g.score1,w===1],[g.team2,g.score2,w===2]].forEach(([t,pts,won])=>{
+      if(!t||t.length!==2)return;
+      const k=[...t].sort(),key=k.join('|');
+      const e=m[key]=m[key]||{player1:k[0],player2:k[1],points:0,sets_won:0,matches:0,wins:0};
+      e.points+=pts||0;e.matches++;if(won)e.wins++;
+    });
+  });
+  const rows=Object.values(m).map(e=>({...e,group_id:groupId,session_date:date}));
+  if(rows.length)await sbPost('duo_log',rows);
+  if(priorRows.length)await sbDelete('duo_log',`id=in.(${priorRows.map(r=>r.id).join(',')})`);
+}
+
 // ── SAVE ROUND ────────────────────────────────────────────────────────────────
+// True for the whole network round trip of a save. Without it, tapping Save twice on a
+// slow connection ran saveRound twice concurrently; both reads of the existing rows
+// happened before either write, so neither deleted anything and both inserted. That is
+// the ordinary way this app produced duplicate matches, more common than the unlock-and
+// -resave path the original fix was aimed at.
+let saveInFlight=false;
+function setSaveButtonsBusy(busy){
+  document.querySelectorAll('.round-save-btn-big').forEach(b=>{
+    b.disabled=busy; b.style.opacity=busy?'0.55':''; b.style.pointerEvents=busy?'none':'';
+  });
+}
 async function saveRound(ri){
+  if(!currentSession)return;
+  if(saveInFlight)return;
+  saveInFlight=true; setSaveButtonsBusy(true);
+  try{ await doSaveRound(ri); }
+  finally{ saveInFlight=false; setSaveButtonsBusy(false); }
+}
+async function doSaveRound(ri){
   if(!currentSession)return;
   const round=currentSession.rounds[ri];
   const missing=round.matches.some((_,mi)=>round.scores[mi].sets[0].t1===''||round.scores[mi].sets[0].t2==='');
   if(missing){showToast('Enter Set 1 scores first.');return;}
   const date=currentSession.date;
+  // Key writes to the session's OWN group. currentGroup follows the group selector,
+  // and loadSessionsForDate can still be showing a session the user has since navigated
+  // away from. Keying the delete on currentGroup would then remove the OTHER group's rows
+  // for the same date and round.
+  const gid=currentSession.groupId||currentGroup?.id;
+  if(!gid){showToast('No group on this session.');return;}
+
+  // Another admin may have cancelled or rebuilt this session while this phone still had it
+  // on screen. Without this check the upsert at the end of the save silently resurrects a
+  // cancelled session, or overwrites a freshly built one with this stale copy.
+  try{
+    const cur=await sbGet('active_session',`group_id=eq.${gid}&select=data`);
+    const live=cur.length?cur[0].data:null;
+    if(!live||live.cancelled||live.date!==date){
+      showToast('Session was cancelled or replaced. Refreshing…');
+      loadSessionsForDate();
+      return;
+    }
+  }catch(e){/* offline: do not block scoring on a connectivity blip */}
 
   const gameLogs=round.matches.map((m,mi)=>{
     const sc=round.scores[mi];
@@ -1375,48 +1789,47 @@ async function saveRound(ri){
         else{if(a>b)t1sets++;else if(b>a)t2sets++;}
       }
     });
-    return{session_date:date,round:ri+1,court:m.court,team1:m.team1,team2:m.team2,score1:t1games,score2:t2games,sets_detail:sc.sets,group_id:currentGroup?.id};
-  });
-
-  const deltas={};
-  currentSession.players.forEach(p=>deltas[p]={points:0,games:0,wins:0});
-  gameLogs.forEach((g,mi)=>{
-    const t1win=g.score1>g.score2,t2win=g.score2>g.score1;
-    round.matches[mi].team1.forEach(p=>{deltas[p].points+=g.score1;deltas[p].games++;if(t1win)deltas[p].wins++;});
-    round.matches[mi].team2.forEach(p=>{deltas[p].points+=g.score2;deltas[p].games++;if(t2win)deltas[p].wins++;});
+    return{session_date:date,round:ri+1,court:m.court,team1:m.team1,team2:m.team2,score1:t1games,score2:t2games,sets_detail:sc.sets,group_id:gid};
   });
 
   try{
+    // Replace this round rather than appending to it. Saving an unlocked round used to
+    // insert a SECOND copy of every match, which the leaderboard's recent-sessions
+    // query reads, so it inflated PPG and win rate for everyone involved.
+    //
+    // Order is POST then DELETE, not DELETE then POST. If the delete ran first and the
+    // insert then failed, the round would be gone from game_log while players still
+    // held its points, and nothing would ever repair it. This way a failure leaves
+    // either the old rows or both sets, never neither: duplicates are recoverable by
+    // saving again, missing matches are not.
+    // Scope the replace to THIS match, not to the whole (date, group, round) slot.
+    // A rebuilt or second session on the same date restarts its round numbering at 1.
+    // Deleting everything in the slot therefore destroyed the earlier session's real
+    // matches. 2026-07-27 in this database is exactly that shape:
+    // three different rotations recorded under round 1. Matching on court plus the two
+    // team line-ups replaces only a genuine re-save of the same match and leaves a
+    // different pairing alone.
+    const teamSig=t=>[...(t||[])].sort().join('|');
+    const matchSig=(court,t1,t2)=>`${court}#${[teamSig(t1),teamSig(t2)].sort().join('~')}`;
+    const mine=new Set(gameLogs.map(g=>matchSig(g.court,g.team1,g.team2)));
+    const slot=await sbGet('game_log',
+      `session_date=eq.${date}&group_id=eq.${gid}&round=eq.${ri+1}&select=id,court,team1,team2`);
+    const stale=slot.filter(r=>mine.has(matchSig(r.court,r.team1,r.team2)));
     await sbPost('game_log',gameLogs);
-    for(const[name,d]of Object.entries(deltas)){
-      if(d.games===0)continue;
-      try{
-        const ex=await sbGet('players',`name=eq.${encodeURIComponent(name)}&select=points,games,wins,sessions`);
-        if(ex.length>0)await sbPatch('players',{name},{points:ex[0].points+d.points,games:ex[0].games+d.games,wins:ex[0].wins+d.wins,updated_at:new Date().toISOString()});
-        else await sbPost('players',[{name,points:d.points,games:d.games,wins:d.wins,sessions:1,group_id:currentGroup?.id}]);
-      }catch{}
+    if(stale.length){
+      await sbDelete('game_log',`id=in.(${stale.map(r=>r.id).join(',')})`);
     }
-    if(currentSession.isDuo){
-      for(const g of gameLogs){
-        const t1key=pairKey(g.team1[0],g.team1[1]),t2key=pairKey(g.team2[0],g.team2[1]);
-        const t1win=g.score1>g.score2,t2win=g.score2>g.score1;
-        for(const[key,win,pts]of[[t1key,t1win,g.score1],[t2key,t2win,g.score2]]){
-          try{
-            const[p1,p2]=key.split('|');
-            const ex=await sbGet('duo_log',`player1=eq.${encodeURIComponent(p1)}&player2=eq.${encodeURIComponent(p2)}&group_id=eq.${currentGroup?.id}&select=id,points,matches,wins`);
-            if(ex.length>0)await sbPatch('duo_log',{id:ex[0].id},{points:ex[0].points+pts,matches:ex[0].matches+1,wins:ex[0].wins+(win?1:0)});
-            else await sbPost('duo_log',[{player1:p1,player2:p2,group_id:currentGroup?.id,session_date:date,points:pts,matches:1,wins:win?1:0}]);
-          }catch{}
-        }
-      }
-    }
+
+    // Totals are rebuilt from game_log, never incremented. The old read-modify-write
+    // (points = points + delta) double-counted on every re-save and a wrong total had
+    // no way to correct itself. This also repairs any total that is already wrong.
+    await recomputeTotals(gid);
+    if(currentSession.isDuo)await recomputeDuoLog(date,gid);
+
     currentSession.rounds[ri].roundSaved=true;
     const allDone=currentSession.rounds.every(r=>r.roundSaved);
-    if(allDone){
-      currentSession.allSaved=true;clearDraftScores();
-      for(const p of currentSession.players){try{const ex=await sbGet('players',`name=eq.${encodeURIComponent(p)}&select=sessions`);if(ex.length>0)await sbPatch('players',{name:p},{sessions:ex[0].sessions+1});}catch{}}
-    }
-    await sbUpsert('active_session',[{id:1,data:currentSession,group_id:currentGroup?.id}],'id');
+    if(allDone){currentSession.allSaved=true;clearDraftScores();}
+    await sbUpsert('active_session',[{data:currentSession,group_id:gid}],'group_id');
     loadSessionsForDate();
     showToast(allDone?'Session complete! 🎉':`Round ${ri+1} saved ✓`);
   }catch(e){showToast('Save failed.');console.error(e);}
@@ -1433,13 +1846,10 @@ async function renderLeaderboard(){
   const tbody=document.getElementById('lbBody');
   tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;"><span class="loading-spin"></span></td></tr>`;
   try{
-    const allDatesRes=await sbGet('game_log','select=session_date&order=session_date.desc');
-    const allDates=[...new Set(allDatesRes.map(g=>g.session_date))].slice(0,MAX_SESSIONS);
-    let recentGames=[];
-    if(allDates.length>0){
-      const results=await Promise.all(allDates.map(d=>sbGet('game_log',`session_date=eq.${d}&order=created_at.desc`)));
-      recentGames=results.flat();
-    }
+    // Lifetime: every session counts. This used to slice to the last 10 dates and then
+    // fire ONE request per date, so removing the cap would have meant one request per
+    // session forever. A single projected query replaces the whole fan-out.
+    let recentGames=await sbGet('game_log','select=session_date,team1,team2,score1,score2,group_id&limit=100000');
     if(lbGroupFilter!=='all')recentGames=recentGames.filter(g=>g.group_id===lbGroupFilter);
 
     let playerQuery='order=points.desc&limit=100';
@@ -1485,7 +1895,7 @@ async function renderLeaderboard(){
 
     let html='';
     if(ranked.length>0){
-      html+=`<tr><td colspan="6" style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:8px 12px;background:var(--surface2);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border);">Ranked · last ${MAX_SESSIONS} sessions</td></tr>`;
+      html+=`<tr><td colspan="6" style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:8px 12px;background:var(--surface2);letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border);">Ranked · all sessions (lifetime)</td></tr>`;
       html+=ranked.map((r,i)=>{
         const rank=i<3?['🥇','🥈','🥉'][i]:`#${i+1}`;
         const moveStr=r.move>0?`↑${r.move}`:r.move<0?`↓${Math.abs(r.move)}`:'–';
@@ -1525,7 +1935,7 @@ function openPlayerCard(name){
   const rank=r.ranked?ranked.findIndex(x=>x.name===name)+1:null;
   const maxPPG=ranked.length>0?ranked[0].ppg:1;
 
-  document.getElementById('pcRank').textContent=r.ranked?`Rank #${rank} · Last ${MAX_SESSIONS} sessions`:'Unranked — need more games';
+  document.getElementById('pcRank').textContent=r.ranked?`Rank #${rank} · All sessions (lifetime)`:'Unranked — need more games';
   document.getElementById('pcName').textContent=name;
   const grp=allGroups.find(g=>g.id===cachedLeaderboardRows.find(x=>x.name===name)?.groupId);
   document.getElementById('pcGroup').textContent=grp?`${grp.emoji} ${grp.name}`:'';
@@ -1663,7 +2073,7 @@ async function resetAll(){
     await sbDelete('game_log','id=neq.00000000-0000-0000-0000-000000000000');
     await sbDelete('players','id=neq.00000000-0000-0000-0000-000000000000');
     await sbDelete('duo_log','id=neq.00000000-0000-0000-0000-000000000000');
-    await sbDelete('active_session','id=eq.1');
+    await sbDelete('active_session','id=gte.0');
     currentSession=null;showToast('All data cleared.');renderLeaderboard();renderHistory();
   }catch{showToast('Reset failed.');}
 }
@@ -1697,7 +2107,7 @@ async function addRound(){
     currentSession.rounds.forEach(r=>r.matches.forEach(m=>[...m.team1,...m.team2].forEach(p=>playCount[p]++)));
     currentSession.playCount=playCount;
 
-    await sbUpsert('active_session',[{id:1,data:currentSession,group_id:currentGroup?.id}],'id');
+    await sbUpsert('active_session',[{data:currentSession,group_id:currentSession.groupId||currentGroup?.id}],'group_id');
     loadSessionsForDate();
     showToast(`Round ${newRound.round} added!`);
   }catch(e){
@@ -1718,7 +2128,12 @@ function confirmRebuild(){
       <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px;">↺ REGENERATE SESSION</div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;">
         This will replace today's session with a new rotation.<br>
-        Saved scores will <strong style="color:var(--red);">not</strong> be affected.
+        Saved scores are never deleted. Regenerating gives the rounds you have
+        <strong>not</strong> saved yet new pairings.<br><br>
+        If you re-play a round you already saved and the pairings are different, the new
+        result is kept <strong style="color:var(--red);">as well as</strong> the old one, and
+        both count on the leaderboard. Re-saving the same pairing replaces it as you would
+        expect.
       </div>
       <button onclick="rebuildKeepSettings()" style="width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:var(--bg);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px;">
         Keep same players & settings

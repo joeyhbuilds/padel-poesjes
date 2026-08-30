@@ -16,20 +16,19 @@ two of them are missing something the third has.
 
 | file | sha1 | has dedup fix | has newer UI |
 |---|---|---|---|
-| `archive/padel-hub-2026-08-04-with-dedup-fix.html` | `ede6e8db…` | yes | no |
+| `archive/…-2026-08-04-with-dedup-fix.html` (local only, gitignored) | `ede6e8db…` | yes | no |
 | `index.html` (current) | `31a9bbba…` | **no** | yes |
-| `padel-hub.original-backup.html` | `1882b8ef…` | no | no |
+| `archive/padel-hub.original-backup.html` (local only) | `1882b8ef…` | no | no |
 
 The `ede6e8db` build is what Netlify actually served from 2026-08-04 until 2026-08-30,
 confirmed from deploy `6a71e15b779b606d5abf6fdf`, which contained exactly one file,
 `/index.html`, sha1 `ede6e8db60699f3afef8af55d8703e41cf795644`. The 2026-08-24 session
 was played on it.
 
-The current `index.html` carries newer UI work (keyboard PIN entry, full-width save
-button, partial re-render on score entry so the mobile keyboard no longer closes) but
-was branched from the pre-fix backup, so its `saveRound` is byte-identical to
-`padel-hub.original-backup.html` and the duplicate-points fix is absent. Porting the
-fix onto it is the next change.
+`index.html` was branched from the pre-fix backup, so it shipped without the dedup fix.
+That fix was ported forward and hardened on 2026-08-30; see the Changelog in
+`PADEL_HUB_PROJECT.md`. `archive/` is gitignored because Netlify publishes the repo root
+and these are working copies pointing at the live database.
 
 ## Deploy
 1. Edit `index.html`
@@ -48,7 +47,8 @@ Verified: no reference to the old personal-account project remains in the file.
 
 ## The duplicate-points bug — what it was and what changed
 
-> **Status: this fix is NOT in the current `index.html`.** Everything below describes
+> **Status: this fix IS in `index.html` as of 2026-08-30**, ported forward and extended.
+> Everything below describes
 > the `ede6e8db` build in `archive/`. The UI work now in `index.html` was branched from
 > the pre-fix backup, so the bug is live again in the deployed file. Porting it forward
 > is the next change. Keeping this section because the diagnosis and the one-time data

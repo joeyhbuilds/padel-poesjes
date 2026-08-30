@@ -66,12 +66,16 @@ created_at timestamptz default now()
 
 ### `active_session`
 ```sql
-id int primary key default 1   -- always 1 row, upserted on conflict
+id int primary key default nextval('active_session_id_seq')
 data jsonb not null            -- full session object (see Session Object below)
-group_id uuid
+group_id uuid not null unique  -- active_session_group_id_key
 session_mode text default 'individual'
 created_at timestamptz default now()
 ```
+**One row per group**, upserted with `on_conflict=group_id`. It used to be a single global
+row keyed `id=1`, which meant building a Padelleyballers session silently destroyed a live
+Padel Poesjes one, and made a delete-session button impossible to implement correctly.
+Migration applied 2026-08-30.
 
 ### `duo_log`
 ```sql
@@ -112,6 +116,8 @@ created_at timestamptz default now()
   "maxPairReuse": 1,
   "maxMatchupReuse": 1,
   "allSaved": false,
+  "sessionId": "m1abc23xy",
+  "cancelled": false,
   "rounds": [
     {
       "round": 1,
@@ -153,9 +159,19 @@ created_at timestamptz default now()
 ## Leaderboard Logic
 - **Ranked by:** PPG (points per game average)
 - **Tiebreaker:** Win rate
-- **Window:** Last 10 sessions only
+- **Window:** All sessions, lifetime. The 10-session cap was removed 2026-08-30.
 - **Minimum:** 2 games to appear as ranked (below = Unranked)
 - **Group filter:** All groups / per group
+
+`renderLeaderboard` issues ONE projected `game_log` query and filters in the browser. It
+used to slice to the last 10 dates and then fire one HTTP request per date, so removing the
+cap without changing the query would have meant one request per session, forever.
+
+### Live session standings
+The Session tab carries a separate `renderTodayPanel`, ranked by points scored today with
+PPG as the tiebreak and a `played n/N` column. It is derived from `game_log`, not from
+`currentSession`, because any phone that saves a round overwrites `active_session` with its
+own copy of the blob. Saved rounds only. Collapsed to a one-line leader strip by default.
 
 ---
 
@@ -180,8 +196,15 @@ Key rules baked into `buildRotation()`:
 
 ## Admin System
 - **PIN:** `6969`
-- **Protected actions:** Build/rebuild sessions, edit saved scores, remove/rename players, reset all data
-- **Non-admin can:** View session, enter scores, view leaderboard/history
+- **PIN-gated actions:** Build/rebuild sessions, cancel a session, edit saved scores,
+  remove/rename players, reset all data
+- **Everyone can:** View sessions, enter and save scores, view leaderboard/history
+
+> This is a usability guard, not a security control, and must never be described as
+> "admin only". `isAdmin` is a browser variable, the PIN is readable in view-source, and RLS
+> is fully permissive, so anyone who opens devtools can perform any of these actions
+> directly against the REST API. `isAdmin` is also never reset on group switch, so one PIN
+> entry makes that browser tab admin until it is reloaded.
 
 ---
 
@@ -225,10 +248,39 @@ site_id `518bb4c6-b204-4cb1-9bc3-ee7a325248ff`.
 ---
 
 ## Known Issues / Open Tasks
-- RLS policies are fully open — tightening needed (own task, not urgent)
-- Score edit after save re-adds to game_log instead of replacing — causes duplicate points (known bug, needs fix)
-- The keep-alive workflow needs Postgres credentials for the new Supabase project before it can be activated
-- Leaderboard group filter requires existing players to have group_id set — run `update players set group_id = '[poesjes-uuid]' where group_id is null` after migration
+
+### Open
+- **RLS is fully open.** Every table is `using(true) with check(true)` and both the
+  publishable key and `ADMIN_PIN` ship in this HTML, so anyone with devtools can wipe every
+  row. `resetAll()` does exactly that in four calls. This is the only item on this list that
+  changes the actual risk profile; the admin PIN is a usability guard, not a control.
+  Never describe any feature in this app as "admin only".
+- **`players` is keyed on name alone, with one `group_id` per row.** Joey plays in both
+  groups, so his single row carries both groups' points and the group-filtered board shows a
+  cross-group total for him. Fixing it means a `(name, group_id)` key.
+- **2026-07-27 holds 5 matches in 2 round slots** (three rows at round 1, two at round 2).
+  Joey confirmed these were really played, so the round NUMBERING is wrong rather than the
+  rows. Left alone deliberately. It blocks a `UNIQUE (session_date, group_id, round, court)`
+  constraint, which would otherwise make duplicate rounds impossible at the database rather
+  than relying on every future client build keeping the fix.
+- **Keep-alive** is recorded in README as an n8n workflow live since 2026-08-04. Not
+  re-verified against n8n execution history. A GitHub Action would remove the dependency on
+  Joey's Mac being awake.
+- `unlockRoundEdit` does not work: it clears `roundSaved` then calls
+  `loadSessionsForDate`, which immediately overwrites `currentSession` from the server copy
+  where the round is still saved. Pre-existing, unrelated to the 2026-08-30 work.
+- Player names are interpolated into `onclick="openPlayerCard('${name}')"`, so a name
+  containing an apostrophe breaks that row.
+
+### Resolved 2026-08-30
+- Duplicate points on re-save. `saveRound` replaces the individual match (court plus both
+  team line-ups) rather than appending, and totals are rebuilt from `game_log` rather than
+  incremented, so a wrong total now self-heals on the next save.
+- Cross-group session destruction, via one `active_session` row per group.
+- Players present in `game_log` with no `players` row. Hidde had played 5 matches on
+  2026-08-24 and was invisible on the board; `recomputeTotals` now creates the missing row.
+- Leaderboard group filter and `group_id` backfill: no longer outstanding, all 11 players
+  carry a `group_id`.
 
 ---
 
@@ -236,3 +288,56 @@ site_id `518bb4c6-b204-4cb1-9bc3-ee7a325248ff`.
 - **Joey** — owner, admin (PIN: 6969)
 - **Alf** — "Marge Simpson Alf" — trusted user, has admin PIN
 - **Groups:** Padel Poesjes (6 members), Padelleyballers (4 members)
+
+
+---
+
+## Changelog
+
+### 2026-08-30 — repo, deploy pipeline, correctness, UX
+
+**Deployment moved to GitHub.** The site is Git-connected to `joeyhbuilds/padel-poesjes`,
+publish directory is the repo root, no build command, so the served file must be
+`index.html`. Drag-and-drop deploys must not be used any more: a manual deploy is reverted
+by the next push and vice versa.
+
+**Outage.** The site 404'd from ~2026-08-30 11:43 until 12:15 because connecting Netlify to
+the then-empty repo published a tree containing only a README. Restored by republishing
+deploy `6a71e15b779b606d5abf6fdf`. Netlify Free additionally refuses to build a private repo
+unless the pushing GitHub identity is a verified member of the Netlify team, which the
+`joeyhbuilds` account is not; the repo is public for that reason.
+
+**Correctness**
+- Round save replaces the individual match, not the whole `(date, group, round)` slot, so a
+  second session on the same date can no longer destroy the first.
+- Writes POST before they DELETE everywhere, so a failed save can never leave a round with
+  no rows at all. Duplicates are recoverable by saving again; missing matches are not.
+- Save button is disabled for the whole network round trip. A double tap on slow wifi was
+  the ordinary way this app produced duplicate matches.
+- `recomputeTotals` creates missing `players` rows, one at a time tolerating conflicts, so
+  one collision cannot abort a save and report a false "Save failed" for a round that was
+  in fact written.
+- Renaming a player now rewrites `game_log` and `duo_log` names first, then `players`.
+  Renaming used to leave the log holding the old name, so the next recompute zeroed the
+  renamed row and resurrected the old one.
+- Staleness guard: a save re-reads `active_session` and aborts if the session was cancelled,
+  replaced, or is for another date, instead of silently resurrecting it via the upsert.
+- Draft scores are keyed per session. The old global key could paste one night's scores onto
+  another night's matches by round index.
+
+**Features**
+- Lifetime ranking window.
+- Session admin sheet with Regenerate and a soft Cancel (`data.cancelled`, never a DELETE,
+  so it is reversible and cannot be undone by a stale phone).
+- Live standings for the session in progress.
+- App opens on the Session tab when a live session exists for today.
+
+**UX**, measured at 375px before and after
+- 25 of 27 interactive elements were under the 44px touch minimum; navigation tabs were 23px
+  tall at 10px type. All now 44px or more, inputs at 16px so iOS stops zooming on focus.
+- Session page height 4859px to 1824px. Rounds collapse, the round being played is expanded,
+  badged NOW and scrolled to.
+- Score boxes on a 10-round session 60 to 2. Set 2 and Set 3 sit behind a `＋ Set N` control:
+  across all 59 recorded matches, Set 1 was used 100% of the time and Sets 2 and 3 zero.
+- `.lb-remove` and `.lb-rename` had no CSS rule at all and rendered as 14x19px default OS
+  buttons; they are now styled 34px controls.

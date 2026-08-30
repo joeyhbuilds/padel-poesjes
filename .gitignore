@@ -1,0 +1,14 @@
+# Old builds of the app. Deliberately NOT committed: Netlify publishes the repo root, so
+# anything here would be served at a public URL, and these are working copies of the app
+# that talk to the same Supabase project. They stay on disk only.
+#   padel-hub-2026-08-04-with-dedup-fix.html  sha1 ede6e8db — the build Netlify served from
+#     2026-08-04 to 2026-08-30; also recoverable from Netlify deploy 6a71e15b779b606d5abf6fdf
+#   padel-hub.original-backup.html            the pre-fix build the newer UI was branched from
+#   rebuild-from-spec.html                    a from-scratch rebuild, never deploy
+archive/
+
+# Unrelated to this app, lives here only by accident of folder history.
+volleyball-calendar-sync.workflow.json
+
+# local QA harness, not part of the app
+_audit_harness.html
