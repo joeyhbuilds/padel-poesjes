@@ -4,7 +4,7 @@
 Padel Hub is a single-file web app (`padel-hub.html`) for managing casual padel sessions across two friend groups. It handles session planning, live score tracking, a persistent leaderboard, and Instagram-shareable stat cards.
 
 **Live URL:** https://padel-poesjes.netlify.app  
-**Deployment:** Netlify — drag-and-drop single HTML file, no build process, no CLI, no repo  
+**Deployment:** Netlify, auto-deployed from GitHub `joeyhbuilds/padel-poesjes` on push to `main`. No build step.  
 **Backend:** Supabase (Postgres + REST API)  
 **Architecture:** 100% client-side. No framework, no bundler, no npm. Pure HTML/CSS/JS in one file.
 
@@ -200,11 +200,27 @@ Key rules baked into `buildRotation()`:
 ---
 
 ## Deployment
-No CI/CD. Manual process:
-1. Edit `padel-hub.html`
-2. Go to netlify.com → site dashboard → Deploys tab
-3. Drag the file onto the deploy zone
-4. Done — live in ~10 seconds
+Push to `main`. Netlify builds and publishes automatically.
+
+1. Edit `index.html`
+2. `git commit` and `git push origin main`
+3. Live in ~30 seconds
+
+**The deployed file must be named `index.html` at the repo root.** Netlify's publish
+directory for this site is the repo root with no build command, so `/` is served from
+`index.html`. A file named `padel-hub.html` produces a 404 at `/`. Verified from the
+last known-good deploy (2026-08-04, id `6a71e15b779b606d5abf6fdf`), which contained a
+single file, `/index.html`, sha1 `ede6e8db60699f3afef8af55d8703e41cf795644`.
+
+**Do not drag-and-drop onto Netlify any more.** The site is Git-connected, so a manual
+deploy is silently reverted by the next push, and a push silently reverts a manual
+deploy. One write path only.
+
+**Netlify site identity:** account `jh2593` (not `joeyhbuilds`),
+site_id `518bb4c6-b204-4cb1-9bc3-ee7a325248ff`.
+
+**Rollback:** restore a previous deploy from the Netlify Deploys tab, or
+`POST /api/v1/sites/{site_id}/deploys/{deploy_id}/restore`.
 
 ---
 
