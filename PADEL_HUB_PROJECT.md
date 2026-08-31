@@ -386,6 +386,16 @@ empty body, so editing an older session would have silently duplicated it with n
 **Write verification.** `sbDelete` now returns the rows it removed and every caller asserts
 on the count. A delete that removed nothing used to be indistinguishable from success.
 
+**Concurrent saves of the SAME round.** Two phones can both read an empty round slot before
+either inserts, so neither deletes and the round is recorded twice. Verified live: four
+phones saving one round together produced four rows. After every save the client now
+re-reads that round and collapses rows matching the same match down to the lowest id.
+Both phones compute the same survivor, so whichever runs second deletes nothing and no row
+can be lost. Verified with 4 and 8 concurrent savers: one row, zero duplicates. Rows under
+the same round number with a *different* pairing are deliberately not touched, so
+2026-07-27's three rotations survive. If a duplicate is ever seen on read, a red banner
+tells the user to re-save that round.
+
 **Still open after this**
 - Signups are enabled on the Supabase project. Any policy written against `anon` alone can
   be sidestepped by creating an account, which is why the grants also name `authenticated`.

@@ -1246,6 +1246,7 @@ async function buildSession(){
 // this shows the first and the leaderboard sums all of them, so they can still differ.
 let sessionLog={key:null,rows:[]};
 let logUnavailable=false;
+let duplicateRows=false;
 let locallyUnlocked=new Set();
 async function fetchSessionLog(date,gid,force){
   const key=`${date}|${gid}`;
@@ -1287,12 +1288,15 @@ function orientSets(hit,m){
 function applyLogToSession(session,rows){
   const sid=session.sessionId||null;
   let recovered=0;
+  duplicateRows=false;
   session.rounds.forEach((round,ri)=>{
     let all=round.matches.length>0;
     round.matches.forEach((m,mi)=>{
       if(!round.scores||!round.scores[mi])
         {all=false;return;}                    // never throw mid-reconcile
-      const hit=rows.find(r=>logRowMatches(r,round,m,sid));
+      const hits=rows.filter(r=>logRowMatches(r,round,m,sid));
+      if(hits.length>1)duplicateRows=true;   // surfaced below rather than silently ignored
+      const hit=hits[0];
       if(!hit){all=false;return;}
       const sets=orientSets(hit,m);
       if(sets.length){
@@ -1464,6 +1468,9 @@ function renderSessionCard(container,session,isLive){
       </div>
       ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openSessionAdmin()" style="margin:0;min-height:44px;">⚙ Manage</button>`:''}
     </div>
+    ${duplicateRows?`<div class="warn-box" style="border-color:var(--red);color:var(--red);">
+      ⚠ This session has a round recorded more than once, so some points may be counted
+      twice. Open that round and tap <strong>Save round</strong> again to clean it up.</div>`:''}
     ${logUnavailable?`<div class="warn-box" style="border-color:var(--red);color:var(--red);">
       ⚠ Could not reach the server to check which rounds are already saved. What you see
       below may be out of date. <strong>Do not re-enter scores yet</strong> — tap ↻ once you
@@ -1970,6 +1977,34 @@ async function doSaveRound(ri){
         showToast('Saved, but the old copy of this round could not be removed.');
       }
     }
+
+    // Two phones can both read an empty slot before either inserts, so neither deletes and
+    // the round ends up recorded twice. Re-read and collapse: keep the lowest id, delete the
+    // rest. Both phones compute the same survivor, so whichever runs second finds nothing to
+    // remove and no row is ever lost. Only rows matching a match in THIS round's plan are
+    // touched, so a genuinely different pairing recorded under the same round number
+    // (2026-07-27 has three) is left exactly as it is.
+    try{
+      const after=await sbGet('game_log',
+        `session_date=eq.${date}&group_id=eq.${gid}&round=eq.${ri+1}&select=id,court,team1,team2`);
+      const bySig={};
+      after.forEach(r=>{
+        const sg=matchSig(r.court,r.team1,r.team2);
+        if(!mine.has(sg))return;
+        (bySig[sg]=bySig[sg]||[]).push(r);
+      });
+      const extras=[];
+      Object.values(bySig).forEach(g=>{
+        if(g.length<2)return;
+        g.sort((a,b)=>String(a.id)<String(b.id)?-1:1);
+        extras.push(...g.slice(1));
+      });
+      if(extras.length){
+        const removed=await sbDelete('game_log',`id=in.(${extras.map(r=>r.id).join(',')})`);
+        console.warn('padel: collapsed',Array.isArray(removed)?removed.length:'?',
+                     'duplicate row(s) on round',ri+1,'- another phone saved it at the same time');
+      }
+    }catch(e){console.warn('padel: duplicate sweep failed',e);}
 
     // Totals are rebuilt from game_log, never incremented. The old read-modify-write
     // (points = points + delta) double-counted on every re-save and a wrong total had

@@ -27,6 +27,13 @@ anything that derives from `game_log`.
 - **Any button that triggers a network write is disabled for the whole round trip.**
   *Two concurrent saves both read an empty slot, both insert, neither deletes. On club wifi a
   double tap is the normal case, not the edge case.*
+- **A read-then-write sequence is not idempotent across devices.** An in-flight guard is
+  per-device and cannot see other phones. Where two clients can both act on "there is
+  nothing here yet", add a deterministic post-write collapse: sort the collisions by a
+  stable key and keep the first, so every client computes the same survivor and the losers
+  delete nothing.
+  *Four phones saving one round together produced four rows, each having read an empty slot
+  before any of them inserted.*
 - **Bulk inserts against a unique constraint are all-or-nothing.** Insert per row and tolerate
   the conflict, or one collision aborts an entire operation and reports a false failure for
   work that actually succeeded.
