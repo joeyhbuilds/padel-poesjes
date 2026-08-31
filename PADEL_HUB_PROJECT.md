@@ -52,6 +52,7 @@ updated_at timestamptz default now()
 ### `game_log`
 ```sql
 id uuid primary key default gen_random_uuid()
+session_id text            -- which session produced this row; see Session identity below
 session_date date not null
 round int
 court int default 1
@@ -72,7 +73,11 @@ group_id uuid not null unique  -- active_session_group_id_key
 session_mode text default 'individual'
 created_at timestamptz default now()
 ```
-**One row per group**, upserted with `on_conflict=group_id`. It used to be a single global
+**Rotation plan only, one row per group**, upserted with `on_conflict=group_id`.
+It carries the date, players, settings, the matches and `cancelled`. It is written by
+exactly four actions: build, regenerate, add-round and cancel. **`saveRound` does not write
+it.** Which rounds are saved, and their scores, are derived from `game_log` on read.
+Upserted with `on_conflict=group_id`. It used to be a single global
 row keyed `id=1`, which meant building a Padelleyballers session silently destroyed a live
 Padel Poesjes one, and made a delete-session button impossible to implement correctly.
 Migration applied 2026-08-30.
@@ -197,7 +202,10 @@ Key rules baked into `buildRotation()`:
 ## Admin System
 - **PIN:** `6969`
 - **PIN-gated actions:** Build/rebuild sessions, cancel a session, edit saved scores,
-  remove/rename players, reset all data
+  remove/rename players. **Reset all data was removed from the app on 2026-08-31** and is
+  now a deliberate SQL operation, see `sql/manual-reset-all-data.sql`. It was the only code
+  path that deleted players, groups or the session row, and removing it is what allowed
+  those DELETE grants to be revoked.
 - **Everyone can:** View sessions, enter and save scores, view leaderboard/history
 
 > This is a usability guard, not a security control, and must never be described as
@@ -341,3 +349,46 @@ unless the pushing GitHub identity is a verified member of the Netlify team, whi
   across all 59 recorded matches, Set 1 was used 100% of the time and Sets 2 and 3 zero.
 - `.lb-remove` and `.lb-rename` had no CSS rule at all and rendered as 14x19px default OS
   buttons; they are now styled 34px controls.
+
+
+### 2026-08-31 — RLS, session identity, and the multi-phone override bug
+
+**The bug reported after the first real session.** Several phones each held their own copy
+of the session and `saveRound` upserted the *whole* blob, so the last phone to save reverted
+every other phone's `roundSaved` flags and scores. No score was ever lost from `game_log`,
+but the screen lied about what was recorded and people re-entered rounds already saved. It
+also fooled the maintainer into reporting that nothing had been saved at all.
+
+Fixed structurally rather than narrowed: `active_session.data` is now the rotation plan
+only, and saved-state plus scores are derived from `game_log` on read. The concurrent write
+no longer exists.
+
+**Session identity.** Matching a `game_log` row to a planned match used court plus both
+line-ups. With 6 players on one court there are 45 possible pairings, so after a regenerate
+a new round could coincidentally match an old saved one (~2% per round, ~20% across ten),
+render as already saved, hide the Save button, and the game played would never be recorded.
+`game_log.session_id` makes that a key. Existing rows are backfilled to
+`legacy-<date>-<group>`. Line-ups are still checked even when session ids agree.
+
+**RLS.** Reads stay public and inserts stay open, because the app needs them and the key
+ships in the HTML, so this is mitigation and not a boundary. What was removed: DELETE on
+`players`, `groups` and `active_session`; UPDATE on `groups`; and UPDATE on `game_log`
+narrowed by column grant to `team1, team2` so match scores can never be rewritten in place.
+Grants are revoked from `authenticated` as well as `anon`, because signups are open on this
+project so anyone with the key can mint an authenticated token.
+
+An earlier draft of this migration froze history behind a 7-day window. It was abandoned: it
+would have frozen 76% of `game_log` and 100% of `duo_log` on day one, was shorter than the
+median gap between sessions, and removed DELETE, which is the app's own repair for the
+duplicate bug this project's whole history is about. A blocked DELETE returns 200 with an
+empty body, so editing an older session would have silently duplicated it with no way back.
+
+**Write verification.** `sbDelete` now returns the rows it removed and every caller asserts
+on the count. A delete that removed nothing used to be indistinguishable from success.
+
+**Still open after this**
+- Signups are enabled on the Supabase project. Any policy written against `anon` alone can
+  be sidestepped by creating an account, which is why the grants also name `authenticated`.
+  Turning signups off is a free, larger improvement than most of this migration.
+- The publishable key is in the HTML. Someone who reads the JS can still insert junk rows.
+  A real boundary needs auth or a server-side write proxy.

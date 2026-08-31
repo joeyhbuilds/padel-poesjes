@@ -1,0 +1,33 @@
+-- DESTRUCTIVE. Read this whole file before running any of it.
+--
+-- This replaces the "Reset all data" button removed from the app on 2026-08-31. That button
+-- sat behind a 4-digit PIN that is readable in the page source, and it was the only reason
+-- the browser ever needed permission to delete players, groups or the live session row.
+-- Removing it is what let those DELETE grants be revoked.
+--
+-- Before running: take a backup. ~/n8n-docker/padel-backup.sh writes
+-- ~/Documents/padel-backups/padel-YYYY-MM-DD/ with a row-count and checksum manifest.
+-- Run it manually first and confirm the counts look right.
+
+-- Everything except the groups themselves, which is almost always what is actually wanted:
+-- begin;
+--   delete from public.game_log;
+--   delete from public.duo_log;
+--   delete from public.players;
+--   delete from public.active_session;
+-- commit;
+
+-- One group only:
+-- begin;
+--   delete from public.game_log       where group_id = '<group uuid>';
+--   delete from public.duo_log        where group_id = '<group uuid>';
+--   delete from public.active_session where group_id = '<group uuid>';
+--   -- players are shared across groups; delete individually and deliberately.
+-- commit;
+
+-- One session only, the common case after a mistake:
+-- begin;
+--   delete from public.game_log where session_date = '<yyyy-mm-dd>' and group_id = '<uuid>';
+--   delete from public.duo_log  where session_date = '<yyyy-mm-dd>' and group_id = '<uuid>';
+-- commit;
+-- Then open the app and save any round: recomputeTotals() rebuilds players from game_log.

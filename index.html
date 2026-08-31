@@ -629,7 +629,6 @@ select option{background:var(--surface2);}
   </div>
   <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
     <button class="btn btn-ghost btn-sm" onclick="exportCSV()">Export CSV</button>
-    <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red);" onclick="requirePin('reset')">Reset all data</button>
   </div>
 </div>
 
@@ -671,7 +670,15 @@ function sbH(e={}){return{'Content-Type':'application/json','apikey':SB_KEY,'Aut
 async function sbGet(t,p=''){const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{headers:sbH()});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbPost(t,b,e={}){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:sbH(e),body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbPatch(t,m,b){const q=Object.entries(m).map(([k,v])=>`${k}=eq.${encodeURIComponent(v)}`).join('&');const r=await fetch(`${SB_URL}/rest/v1/${t}?${q}`,{method:'PATCH',headers:sbH(),body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
-async function sbDelete(t,p){const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{method:'DELETE',headers:sbH()});if(!r.ok)throw new Error(await r.text());}
+// Returns the rows actually deleted. sbH already sends Prefer: return=representation, so
+// this costs nothing. It used to discard the response, which made a delete that removed
+// NOTHING indistinguishable from one that worked. Every caller now checks.
+async function sbDelete(t,p){
+  const r=await fetch(`${SB_URL}/rest/v1/${t}?${p}`,{method:'DELETE',headers:sbH()});
+  if(!r.ok)throw new Error(await r.text());
+  const txt=await r.text();
+  return txt.trim()?JSON.parse(txt):[];
+}
 async function sbUpsert(t,b,c){const r=await fetch(`${SB_URL}/rest/v1/${t}?on_conflict=${c}`,{method:'POST',headers:sbH({'Prefer':'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
 
 let isAdmin=false,pinBuffer='',pinCallback=null;
@@ -742,7 +749,7 @@ function requirePin(action){
   if(isAdmin){executePinAction(action);return;}
   pinBuffer='';pinCallback=action;
   document.getElementById('pinError').textContent='';updatePinDots();
-  const subs={plan:'Enter PIN to manage sessions',reset:'Enter PIN to reset data',edit:'Enter PIN to edit score',remove:'Enter PIN to remove player',rename:'Enter PIN to rename player'};
+  const subs={plan:'Enter PIN to manage sessions',edit:'Enter PIN to edit score',remove:'Enter PIN to remove player',rename:'Enter PIN to rename player'};
   document.getElementById('pinModalSub').textContent=subs[action]||'Enter your PIN';
   document.getElementById('pinModal').style.display='flex';
   // Auto-focus hidden input so keyboard works immediately
@@ -795,7 +802,6 @@ document.addEventListener('keydown',function(e){
 });
 function executePinAction(action){
   if(action==='plan'){document.getElementById('planLocked').style.display='none';document.getElementById('planUnlocked').style.display='block';showTab('plan');}
-  else if(action==='reset')resetAll();
   else if(action&&action.startsWith('edit:'))unlockRoundEdit(parseInt(action.split(':')[1]));
   else if(action&&action.startsWith('remove:'))confirmRemovePlayer(action.split(':').slice(1).join(':'));
   else if(action&&action.startsWith('rename:'))promptRenamePlayer(action.split(':').slice(1).join(':'));
@@ -896,8 +902,15 @@ async function promptRenamePlayer(oldName){
     const games=await sbGet('game_log','select=id,team1,team2&limit=100000');
     const hit=g=>(g.team1||[]).includes(oldName)||(g.team2||[]).includes(oldName);
     const swap=t=>(t||[]).map(n=>n===oldName?trimmed:n);
-    for(const g of games.filter(hit))
-      await sbPatch('game_log',{id:g.id},{team1:swap(g.team1),team2:swap(g.team2)});
+    const targets=games.filter(hit);
+    for(const g of targets){
+      const res=await sbPatch('game_log',{id:g.id},{team1:swap(g.team1),team2:swap(g.team2)});
+      // A PATCH that matches nothing returns 200 with an empty array. If any row failed to
+      // rewrite, game_log still holds the old name, and recomputeTotals would then zero the
+      // renamed row and re-create the old one. Stop before touching players.
+      if(!Array.isArray(res)||res.length===0)
+        throw new Error(`rename: game_log row ${g.id} was not rewritten`);
+    }
 
     const duos=await sbGet('duo_log','select=id,player1,player2&limit=100000');
     for(const d of duos.filter(d=>d.player1===oldName||d.player2===oldName))
@@ -1219,6 +1232,85 @@ async function buildSession(){
   }finally{btn.disabled=false;btn.textContent='Build rotation →';}
 }
 
+// ── SESSION LOG: what is actually saved ───────────────────────────────────────
+// active_session.data is the ROTATION PLAN only. It is written by build, regenerate,
+// add-round and cancel, and by nothing else. It used to also carry every round's scores
+// and roundSaved flags, and saveRound wrote the whole blob back on every save — so with
+// six phones each holding their own copy, the last one to save reverted everybody else's
+// saved rounds. Nothing was ever lost from game_log, but the screen lied about what was
+// recorded, and people re-entered rounds that were already in.
+//
+// Saved state and saved scores are now derived from game_log, which is the same source the
+// leaderboard reads. Caveat worth knowing: where a round legitimately has more than one
+// recorded match under the same line-ups (2026-07-27 has three rotations under round 1),
+// this shows the first and the leaderboard sums all of them, so they can still differ.
+let sessionLog={key:null,rows:[]};
+let logUnavailable=false;
+let locallyUnlocked=new Set();
+async function fetchSessionLog(date,gid,force){
+  const key=`${date}|${gid}`;
+  if(!force&&sessionLog.key===key)return sessionLog.rows;
+  // select=* deliberately: naming session_id explicitly makes this query 400 with
+  // "column does not exist" on any database where the migration has not run yet, which
+  // would silently disable both the reconcile and the standings panel.
+  const rows=await sbGet('game_log',`session_date=eq.${date}&group_id=eq.${gid}&select=*`);
+  sessionLog={key,rows};
+  return rows;
+}
+function invalidateSessionLog(){sessionLog={key:null,rows:[]};}
+
+const teamSig=t=>[...(t||[])].sort().join('|');
+const matchSig=(court,t1,t2)=>`${court}#${[teamSig(t1),teamSig(t2)].sort().join('~')}`;
+
+// Does this game_log row correspond to this planned match? Exact by session_id where both
+// sides have one; falls back to court plus line-ups for rows written before session_id
+// existed. The fallback is a heuristic: with 6 players on one court there are 45 possible
+// pairings, so a regenerated round can coincidentally match an old saved one. session_id
+// is what makes it a key rather than a guess.
+function logRowMatches(r,round,m,sid){
+  if(r.round!==round.round||r.court!==m.court)return false;
+  // Line-ups must ALWAYS agree. session_id narrows further; it never substitutes. Matching
+  // on session_id + round + court alone let two phones that each added a round 11 with
+  // different pairings read as each other's match.
+  if(matchSig(r.court,r.team1,r.team2)!==matchSig(m.court,m.team1,m.team2))return false;
+  if(r.session_id&&sid)return r.session_id===sid;
+  return true;
+}
+// matchSig sorts the two sides, so a row can legitimately match with team1/team2 reversed
+// relative to the plan. Writing its scores back unflipped would display the result inverted.
+function orientSets(hit,m){
+  const flipped=teamSig(hit.team1)!==teamSig(m.team1);
+  const sets=Array.isArray(hit.sets_detail)?hit.sets_detail:[];
+  if(!flipped)return sets;
+  return sets.map(x=>({...x,t1:x.t2,t2:x.t1,tb1:x.tb2,tb2:x.tb1}));
+}
+function applyLogToSession(session,rows){
+  const sid=session.sessionId||null;
+  let recovered=0;
+  session.rounds.forEach((round,ri)=>{
+    let all=round.matches.length>0;
+    round.matches.forEach((m,mi)=>{
+      if(!round.scores||!round.scores[mi])
+        {all=false;return;}                    // never throw mid-reconcile
+      const hit=rows.find(r=>logRowMatches(r,round,m,sid));
+      if(!hit){all=false;return;}
+      const sets=orientSets(hit,m);
+      if(sets.length){
+        const before=JSON.stringify(round.scores[mi].sets);
+        round.scores[mi].sets=sets;
+        if(before!==JSON.stringify(sets))recovered++;
+      }
+    });
+    // An unlocked round still gets its saved score applied. Skipping the whole round left
+    // the admin staring at two empty boxes, because the blob no longer carries scores and
+    // there is no draft to fall back on. Only the flag is suppressed, so Save reappears.
+    round.roundSaved=locallyUnlocked.has(ri)?false:all;
+  });
+  session.allSaved=session.rounds.every(r=>r.roundSaved);
+  if(recovered)console.warn(`padel: ${recovered} match score(s) reconciled from game_log`);
+  return recovered;
+}
+
 // ── SESSION TAB — date picker view ────────────────────────────────────────────
 async function loadSessionsForDate(){
   const dateInput=document.getElementById('sessionViewDate');
@@ -1233,13 +1325,21 @@ async function loadSessionsForDate(){
 
     if(active&&!active.cancelled&&active.date===date){
       currentSession=active;
+      // Derive what is saved from game_log before rendering, so every phone agrees.
+      // If that read fails there is nothing else to derive from, so the screen must say so
+      // rather than confidently render a fresh, empty, entirely unsaved session and send
+      // six people off to re-enter the evening.
+      logUnavailable=false;
+      try{ applyLogToSession(currentSession, await fetchSessionLog(date,currentGroup?.id,true)); }
+      catch(e){ logUnavailable=true; console.warn('padel: could not reconcile with game_log',e); }
       loadDraftScores();
       container.innerHTML='';
-      renderSessionCard(container,active,true);
+      renderSessionCard(container,currentSession,true);
     } else {
       // Leaving a stale currentSession pointing at a session no longer on screen let
       // saveRound, addRound and unlockRoundEdit all still fire against it.
       currentSession=null;
+      locallyUnlocked=new Set();
       // Check history for past sessions on this date
       const games=await sbGet('game_log',`session_date=eq.${date}&order=round.asc`);
       if(games.length===0){
@@ -1364,6 +1464,10 @@ function renderSessionCard(container,session,isLive){
       </div>
       ${isAdmin?`<button class="btn btn-ghost btn-sm" onclick="openSessionAdmin()" style="margin:0;min-height:44px;">⚙ Manage</button>`:''}
     </div>
+    ${logUnavailable?`<div class="warn-box" style="border-color:var(--red);color:var(--red);">
+      ⚠ Could not reach the server to check which rounds are already saved. What you see
+      below may be out of date. <strong>Do not re-enter scores yet</strong> — tap ↻ once you
+      have signal.</div>`:''}
     <div id="todayPanel"></div>
     <button class="sess-details-toggle" onclick="toggleSessionDetails()">
       <span>${numRounds} rounds · ${gameLen}min each · ${players.length} players · ${savedCount}/${numRounds} saved</span>
@@ -1492,8 +1596,7 @@ async function renderTodayPanel(session){
   const gid=session.groupId||currentGroup?.id;
   if(!gid){el.innerHTML='';return;}
   try{
-    const games=await sbGet('game_log',
-      `session_date=eq.${session.date}&group_id=eq.${gid}&select=team1,team2,score1,score2`);
+    const games=await fetchSessionLog(session.date,gid,false);
     const agg={};
     const get=n=>(agg[n]=agg[n]||{pts:0,g:0,w:0});
     (session.players||[]).forEach(p=>get(p));           // everyone shows, including 0/6
@@ -1587,7 +1690,8 @@ async function cancelSession(){
     await sbUpsert('active_session',[{data:blob,group_id:gid}],'group_id');
     clearDraftScores();
     currentSession=null;
-    openRounds=null; revealedSets=new Set();
+    openRounds=null; revealedSets=new Set(); locallyUnlocked=new Set();
+    invalidateSessionLog();
     loadSessionsForDate();
     showToast('Session cancelled.');
   }catch(e){showToast('Could not cancel session.');console.error(e);}
@@ -1597,7 +1701,11 @@ function updateScore(ri,mi,si,team,val){
   if(!currentSession||currentSession.rounds[ri].roundSaved)return;
   currentSession.rounds[ri].scores[mi].sets[si][team]=val;
   // Save draft locally
-  try{localStorage.setItem(draftKey(),JSON.stringify(currentSession.rounds.map(r=>r.scores)));}catch{}
+  // Keyed by round number. It used to be a positional array, and loadDraftScores discarded
+  // the whole thing when its length no longer matched — so the moment anyone tapped
+  // ＋ Add round, every other phone silently lost whatever it had typed but not saved.
+  try{localStorage.setItem(draftKey(),JSON.stringify(
+    Object.fromEntries(currentSession.rounds.map(r=>[r.round,r.scores]))));}catch{}
   // Update score highlights without reloading the whole page
   updateScoreHighlights(ri,mi);
 }
@@ -1645,7 +1753,20 @@ function updateScoreHighlights(ri,mi){
   });
 }
 function loadDraftScores(){
-  try{if(!currentSession)return;const draft=JSON.parse(localStorage.getItem(draftKey()));if(!draft)return;if(draft.length===currentSession.rounds.length)currentSession.rounds.forEach((r,ri)=>{if(!r.roundSaved)r.scores=draft[ri];});}catch{}
+  try{
+    if(!currentSession)return;
+    const draft=JSON.parse(localStorage.getItem(draftKey()));
+    if(!draft)return;
+    let restored=0;
+    currentSession.rounds.forEach((r,ri)=>{
+      if(r.roundSaved)return;
+      // Array form is the pre-2026-08-31 positional layout, still read so a phone holding
+      // an older draft does not lose it.
+      const d=Array.isArray(draft)?draft[ri]:draft[r.round];
+      if(Array.isArray(d)&&d.length===r.matches.length){r.scores=d;restored++;}
+    });
+    if(restored)console.info('padel: restored drafts for',restored,'round(s)');
+  }catch(e){console.warn('padel: could not read drafts',e);}
 }
 // Keyed per session. The old global key meant a draft could be applied to a DIFFERENT
 // session that merely happened to have the same number of rounds, pasting one night's
@@ -1661,6 +1782,7 @@ function clearDraftScores(){try{localStorage.removeItem(draftKey());localStorage
 function unlockRoundEdit(ri){
   if(!currentSession)return;
   currentSession.rounds[ri].roundSaved=false;
+  locallyUnlocked.add(ri);   // so applyLogToSession does not immediately re-lock it
   if(openRounds===null)openRounds=new Set(defaultOpenRounds(currentSession));
   openRounds.add(ri);
   rerenderSession();
@@ -1730,7 +1852,14 @@ async function recomputeDuoLog(date,groupId){
   });
   const rows=Object.values(m).map(e=>({...e,group_id:groupId,session_date:date}));
   if(rows.length)await sbPost('duo_log',rows);
-  if(priorRows.length)await sbDelete('duo_log',`id=in.(${priorRows.map(r=>r.id).join(',')})`);
+  if(priorRows.length){
+    const removed=await sbDelete('duo_log',`id=in.(${priorRows.map(r=>r.id).join(',')})`);
+    // renderDuos sums rows per pair, so a delete that quietly removed nothing would double
+    // every pair's record for this date.
+    if(!Array.isArray(removed)||removed.length!==priorRows.length)
+      console.error('padel: duo_log rebuild expected to remove',priorRows.length,
+                    'row(s), removed',Array.isArray(removed)?removed.length:'unknown');
+  }
 }
 
 // ── SAVE ROUND ────────────────────────────────────────────────────────────────
@@ -1776,6 +1905,20 @@ async function doSaveRound(ri){
       loadSessionsForDate();
       return;
     }
+    const supersededId = live.sessionId && currentSession.sessionId
+                       && live.sessionId!==currentSession.sessionId;
+    const supersededLen = Array.isArray(live.rounds)
+                       && live.rounds.length!==currentSession.rounds.length;
+    if(supersededId||supersededLen){
+      // date+cancelled alone missed the two cases that actually happen: someone
+      // regenerated the rotation, or someone added a round. Both leave date unchanged and
+      // cancelled falsy, so a stale phone would write its old plan back over everyone
+      // else's. Note this only fires when BOTH blobs carry a sessionId; if either lacks one
+      // (sessions built before sessionId existed) the round-count check is the only cover.
+      showToast('Session was changed on another phone. Refreshing…');
+      loadSessionsForDate();
+      return;
+    }
   }catch(e){/* offline: do not block scoring on a connectivity blip */}
 
   const gameLogs=round.matches.map((m,mi)=>{
@@ -1789,7 +1932,7 @@ async function doSaveRound(ri){
         else{if(a>b)t1sets++;else if(b>a)t2sets++;}
       }
     });
-    return{session_date:date,round:ri+1,court:m.court,team1:m.team1,team2:m.team2,score1:t1games,score2:t2games,sets_detail:sc.sets,group_id:gid};
+    return{session_date:date,round:ri+1,court:m.court,team1:m.team1,team2:m.team2,score1:t1games,score2:t2games,sets_detail:sc.sets,group_id:gid,session_id:currentSession.sessionId||null};
   });
 
   try{
@@ -1817,7 +1960,15 @@ async function doSaveRound(ri){
     const stale=slot.filter(r=>mine.has(matchSig(r.court,r.team1,r.team2)));
     await sbPost('game_log',gameLogs);
     if(stale.length){
-      await sbDelete('game_log',`id=in.(${stale.map(r=>r.id).join(',')})`);
+      // A delete that removes nothing returns 200 with an empty body and used to be
+      // indistinguishable from success, which would leave the round duplicated with no
+      // signal. Now it is loud.
+      const removed=await sbDelete('game_log',`id=in.(${stale.map(r=>r.id).join(',')})`);
+      if(!Array.isArray(removed)||removed.length!==stale.length){
+        console.error('padel: expected to replace',stale.length,'row(s), removed',
+                      Array.isArray(removed)?removed.length:'unknown');
+        showToast('Saved, but the old copy of this round could not be removed.');
+      }
     }
 
     // Totals are rebuilt from game_log, never incremented. The old read-modify-write
@@ -1829,7 +1980,11 @@ async function doSaveRound(ri){
     currentSession.rounds[ri].roundSaved=true;
     const allDone=currentSession.rounds.every(r=>r.roundSaved);
     if(allDone){currentSession.allSaved=true;clearDraftScores();}
-    await sbUpsert('active_session',[{data:currentSession,group_id:gid}],'group_id');
+    // active_session is NOT written here. It holds the rotation plan, and writing the whole
+    // blob from each phone is exactly what made saves overwrite each other. roundSaved and
+    // the scores are derived from game_log on the next read.
+    locallyUnlocked.delete(ri);
+    invalidateSessionLog();
     loadSessionsForDate();
     showToast(allDone?'Session complete! 🎉':`Round ${ri+1} saved ✓`);
   }catch(e){showToast('Save failed.');console.error(e);}
@@ -2067,16 +2222,9 @@ async function exportCSV(){
 }
 
 // ── RESET ─────────────────────────────────────────────────────────────────────
-async function resetAll(){
-  if(!confirm('Delete ALL data permanently?'))return;
-  try{
-    await sbDelete('game_log','id=neq.00000000-0000-0000-0000-000000000000');
-    await sbDelete('players','id=neq.00000000-0000-0000-0000-000000000000');
-    await sbDelete('duo_log','id=neq.00000000-0000-0000-0000-000000000000');
-    await sbDelete('active_session','id=gte.0');
-    currentSession=null;showToast('All data cleared.');renderLeaderboard();renderHistory();
-  }catch{showToast('Reset failed.');}
-}
+// resetAll() removed 2026-08-31. It was the only code path that deleted players, groups or
+// the session row, and it existed behind a PIN that is readable in view-source. A real
+// reset is now a deliberate SQL operation; see sql/ and PADEL_HUB_PROJECT.md.
 
 // ── ADD ROUND ────────────────────────────────────────────────────────────────
 async function addRound(){
@@ -2216,6 +2364,28 @@ function rebuildFresh(){
   setMode('individual');
   showTab('plan');
 }
+
+// ── CONVERGE ACROSS PHONES ────────────────────────────────────────────────────
+// Six people each on their own phone. Without this, you only learn that someone else saved
+// a round by tapping refresh. Deliberately silent: it never shows the "Loading…" spinner
+// and only repaints when something actually changed, because loadSessionsForDate blanks the
+// screen and would yank the page out from under whoever is entering a score.
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState!=='visible')return;
+  if(!currentSession||saveInFlight||locallyUnlocked.size)return;
+  const ae=document.activeElement;
+  if(ae&&ae.classList&&ae.classList.contains('score-box'))return;
+  const gid=currentSession.groupId||currentGroup?.id;
+  if(!gid)return;
+  const fingerprint=s=>s.rounds.map(r=>
+    (r.roundSaved?'1':'0')+r.scores.map(x=>x.sets.map(
+      y=>`${y.t1}-${y.t2}/${y.tb1||''}-${y.tb2||''}`).join()).join()).join('|');
+  try{
+    const before=fingerprint(currentSession);
+    applyLogToSession(currentSession,await fetchSessionLog(currentSession.date,gid,true));
+    if(fingerprint(currentSession)!==before)rerenderSession();
+  }catch(e){/* offline: leave the screen exactly as it is */}
+});
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
